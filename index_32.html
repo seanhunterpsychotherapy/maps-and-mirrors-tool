@@ -1,0 +1,3007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f0ede8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Maps &amp; Mirrors">
+<meta name="application-name" content="Maps &amp; Mirrors">
+<title>Maps and Mirrors — Your Lighthouse in the Fog</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f0ede8;
+    --card: #faf8f5;
+    --text: #1c1a18;
+    --muted: #6b6460;
+    --border: rgba(100,90,80,0.15);
+    --shadow: rgba(40,30,20,0.08);
+    --accent: #2d5a6b;       /* deep teal — the lighthouse */
+    --accent2: #c4824a;      /* warm amber — the flame */
+    --accent3: #4a7a6b;      /* sage — growth */
+    --crisis: rgba(180,60,50,0.08);
+    --crisis-border: rgba(180,60,50,0.3);
+    --fog: rgba(45,90,107,0.06);
+  }
+
+  body.dark-mode {
+    --bg: #0f1419;
+    --card: #1a2128;
+    --text: #e8e0d8;
+    --muted: #8a9aaa;
+    --border: rgba(150,170,190,0.15);
+    --shadow: rgba(0,0,0,0.4);
+    --fog: rgba(45,90,107,0.15);
+    --accent: #5a9ab0;
+  }
+
+  html { font-size: 16px; }
+  html.text-lg { font-size: 18px; }
+  html.text-xl { font-size: 20px; }
+
+  body {
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    padding: 16px 10px 110px;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  @media (min-width: 480px) {
+    body {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 28px 20px 120px;
+    }
+  }
+
+  .container {
+    width: 100%;
+    max-width: 640px;
+    box-sizing: border-box;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-top: 8px;
+  }
+  .header .beacon {
+    font-size: 2.2rem;
+    display: block;
+    margin-bottom: 6px;
+    filter: drop-shadow(0 2px 8px rgba(196,130,74,0.4));
+  }
+  .header h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.9rem;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    line-height: 1.15;
+  }
+  .header p {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--muted);
+    margin-top: 4px;
+    letter-spacing: 0.01em;
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 24px 20px;
+    box-shadow: 0 2px 16px var(--shadow);
+    width: 100%;
+  }
+  @media (min-width: 480px) {
+    .card { padding: 32px 36px; border-radius: 24px; }
+  }
+
+  /* ── PASSAGES ── */
+  .passage { display: none; }
+  .passage.active { display: block; animation: fadeUp 0.3s ease forwards; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── TYPOGRAPHY ── */
+  .prompt {
+    font-family: 'Fraunces', serif;
+    font-size: 1.25rem;
+    font-weight: 300;
+    line-height: 1.6;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .sub-prompt {
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.65;
+    margin-bottom: 22px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  /* ── ZONE BUTTONS ── */
+  .choices { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+
+  .zone-btn {
+    width: 100%;
+    text-align: left;
+    background: var(--fog);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .zone-btn:hover { background: rgba(45,90,107,0.1); border-color: var(--accent); }
+  .zone-btn .zone-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 1px; }
+  .zone-btn .zone-label { font-size: 0.95rem; font-weight: 500; color: var(--text); display: block; line-height: 1.4; }
+  .zone-btn .zone-desc { font-size: 0.82rem; color: var(--muted); display: block; margin-top: 2px; line-height: 1.4; }
+
+  .zone-btn.crisis-btn {
+    background: var(--crisis);
+    border-color: var(--crisis-border);
+  }
+  .zone-btn.crisis-btn .zone-label { color: #b43c32; }
+
+  /* ── CHOICE BUTTONS ── */
+  .choice {
+    width: 100%;
+    text-align: left;
+    background: var(--fog);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 13px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.925rem;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.18s ease;
+    line-height: 1.45;
+  }
+  .choice:hover { background: rgba(45,90,107,0.1); border-color: var(--accent); }
+
+  /* ── TOOL CARDS ── */
+  .tool-card {
+    background: var(--fog);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+  }
+  .tool-card h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.05rem;
+    font-weight: 400;
+    color: var(--accent);
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  .tool-card p {
+    font-size: 0.9rem;
+    color: var(--text);
+    line-height: 1.7;
+  }
+  .tool-card ul, .tool-card ol {
+    padding-left: 18px;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--text);
+  }
+  .tool-card strong { color: var(--accent); }
+  .tool-card .card-tag {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 10px;
+    display: block;
+  }
+
+  /* ── LEARN MORE ── */
+  .learn-more-btn {
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    cursor: pointer;
+    padding: 4px 0;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .learn-more-btn .arrow { font-size: 0.7rem; transition: transform 0.2s; }
+  .learn-more-btn[aria-expanded="true"] .arrow { transform: rotate(90deg); }
+  .learn-more-content {
+    display: none;
+    font-size: 0.875rem;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── SECTION DIVIDER ── */
+  .section-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    margin-top: 6px;
+  }
+  hr.divi { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+
+  /* ── OUTCOME CHECK ── */
+  .outcome-check { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--border); }
+  .outcome-check > p { font-size: 0.875rem; color: var(--muted); margin-bottom: 10px; }
+  .outcome-btn {
+    padding: 9px 20px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    cursor: pointer;
+    margin-right: 8px;
+    margin-bottom: 8px;
+    background: none;
+    color: var(--text);
+    transition: all 0.18s;
+  }
+  .outcome-btn.yes:hover { background: var(--accent); color: white; border-color: var(--accent); }
+  .outcome-btn.no:hover { background: var(--bg); border-color: var(--muted); }
+
+  .closure-msg, .fallback-msg, .escalation-msg { display: none; margin-top: 16px; }
+  .closure-msg p {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--accent);
+    line-height: 1.7;
+    margin-bottom: 12px;
+  }
+  .fallback-msg p, .escalation-msg p {
+    font-size: 0.875rem;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+
+  /* ── DEEPER DIVE ── */
+  .deeper-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: 1.5px solid var(--accent2);
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    color: var(--accent2);
+    cursor: pointer;
+    margin-top: 8px;
+    transition: all 0.18s;
+  }
+  .deeper-btn:hover { background: var(--accent2); color: white; }
+
+  /* ── NAV BUTTONS ── */
+  .back-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    color: var(--muted);
+    cursor: pointer;
+    margin-top: 18px;
+    transition: all 0.18s;
+  }
+  .back-btn:hover { border-color: var(--muted); color: var(--text); }
+
+  .restart-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    color: var(--muted);
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.18s;
+  }
+  .restart-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .fallback-link {
+    display: block;
+    background: var(--fog);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    color: var(--text);
+    cursor: pointer;
+    text-align: left;
+    margin-bottom: 8px;
+    width: 100%;
+    transition: all 0.18s;
+  }
+  .fallback-link:hover { border-color: var(--accent); background: rgba(45,90,107,0.08); }
+
+  /* ── CRISIS ZONE ── */
+  .crisis-resource {
+    background: var(--crisis);
+    border: 1px solid var(--crisis-border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+  }
+  .crisis-resource h3 { font-size: 0.95rem; font-weight: 600; color: #8b2e2a; margin-bottom: 4px; }
+  .crisis-resource p { font-size: 0.875rem; color: var(--text); line-height: 1.6; }
+  .crisis-resource strong { color: #8b2e2a; }
+
+  .esc-btn {
+    display: block;
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 1.5px solid var(--crisis-border);
+    background: var(--crisis);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    color: #8b2e2a;
+    text-align: left;
+    cursor: pointer;
+    margin-bottom: 8px;
+    transition: all 0.18s;
+  }
+  .esc-btn:hover { background: #8b2e2a; color: white; }
+  .esc-btn.phone { font-weight: 600; }
+
+  /* ── ANCHOR QUOTE ── */
+  .anchor-quote {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 0.9rem;
+    color: var(--muted);
+    text-align: center;
+    padding: 12px 0 4px;
+    line-height: 1.6;
+  }
+
+  /* ── GROUNDING ANCHOR ── */
+  .grounding-anchor {
+    margin-bottom: 18px;
+    padding: 12px 14px;
+    background: rgba(45,90,107,0.06);
+    border-radius: 10px;
+    border-left: 3px solid var(--accent);
+  }
+  .grounding-anchor p { font-size: 0.85rem; color: var(--muted); line-height: 1.65; }
+
+  /* ── SAFETY NOTE ── */
+  .safety-note {
+    font-size: 0.82rem;
+    color: var(--muted);
+    background: rgba(180,60,50,0.05);
+    border: 1px solid rgba(180,60,50,0.15);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-top: 18px;
+    line-height: 1.55;
+  }
+
+  /* ── BREATHING TOOL ── */
+  .breathing-wrap { text-align: center; margin: 12px 0; }
+  .breathing-circle {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    border: 2.5px solid var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 10px;
+    font-size: 0.8rem;
+    color: var(--accent);
+    font-weight: 500;
+    transition: all 1s ease;
+  }
+  .breath-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    margin: 4px;
+  }
+  .breath-btn.stop { background: none; border: 1.5px solid var(--border); color: var(--muted); }
+
+  /* ── TOOLS INDEX ── */
+  .index-search {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    background: var(--card);
+    color: var(--text);
+    margin-bottom: 14px;
+    outline: none;
+  }
+  .index-search:focus { border-color: var(--accent); }
+  .index-section { margin-bottom: 8px; }
+  .index-section-btn {
+    width: 100%;
+    text-align: left;
+    background: rgba(45,90,107,0.05);
+    border: 1.5px solid rgba(45,90,107,0.15);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    color: var(--text);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .idx-tools { display: none; padding: 4px 0 6px 0; }
+  .idx-tool-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 7px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    color: var(--accent);
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.15s;
+  }
+  .idx-tool-btn:hover { background: rgba(45,90,107,0.08); }
+
+  /* ── CRISIS BAR ── */
+  .crisis-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--card);
+    border-top: 1px solid rgba(180,60,50,0.2);
+    padding: 10px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px 14px;
+    font-size: 0.8rem;
+    color: #8b2e2a;
+    z-index: 50;
+    text-align: center;
+  }
+  .crisis-bar.subtle { opacity: 0.5; font-size: 0.72rem; padding: 6px 20px; }
+  .crisis-bar span { white-space: nowrap; }
+  .crisis-bar .bar-label { font-weight: 600; }
+
+  /* ── SETTINGS ── */
+  /* ── START OVER BUTTON ── */
+  #start-over-btn {
+    position: fixed;
+    top: 12px; left: 14px;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    color: var(--muted);
+    cursor: pointer;
+    z-index: 60;
+    display: none; /* hidden on triage by default */
+    box-shadow: 0 1px 4px var(--shadow);
+  }
+  #start-over-btn:hover { color: var(--text); border-color: var(--accent); }
+
+  #settings-btn {
+    position: fixed;
+    top: 12px; right: 14px;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 50%;
+    width: 38px; height: 38px;
+    font-size: 1rem;
+    cursor: pointer;
+    z-index: 60;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 8px var(--shadow);
+    transition: all 0.18s;
+  }
+  #settings-panel {
+    display: none;
+    position: fixed;
+    top: 58px; right: 14px;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    z-index: 60;
+    box-shadow: 0 4px 20px var(--shadow);
+    min-width: 180px;
+  }
+  #settings-panel p { font-size: 0.72rem; color: var(--muted); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+  .settings-action {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    color: var(--text);
+    cursor: pointer;
+    margin-bottom: 6px;
+    transition: all 0.15s;
+  }
+  .settings-action:hover { border-color: var(--accent); }
+  .settings-action.danger { color: #8b2e2a; border-color: var(--crisis-border); }
+  .settings-action.danger:hover { background: var(--crisis); }
+
+  /* ── PATTERNS MODAL ── */
+  #patterns-modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 200;
+    padding: 20px;
+    align-items: center;
+    justify-content: center;
+  }
+  #patterns-modal.open { display: flex; }
+  .patterns-inner {
+    background: var(--card);
+    border-radius: 18px;
+    padding: 22px 24px;
+    max-width: 380px;
+    width: 100%;
+    position: relative;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  .patterns-inner h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.1rem;
+    font-weight: 400;
+    margin-bottom: 14px;
+    color: var(--accent);
+  }
+  .patterns-inner p {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+  .modal-close {
+    position: absolute;
+    top: 12px; right: 14px;
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    color: var(--muted);
+    cursor: pointer;
+  }
+
+  /* ── BROWSE LINK ── */
+  .browse-link {
+    display: block;
+    text-align: center;
+    color: var(--accent);
+    font-size: 0.82rem;
+    margin-top: 16px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* ── WELCOME BACK ── */
+  .welcome-back {
+    margin-bottom: 16px;
+    padding: 10px 14px;
+    background: rgba(45,90,107,0.07);
+    border-radius: 10px;
+    border: 1px solid rgba(45,90,107,0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+  .welcome-back p { font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
+  .welcome-back button {
+    white-space: nowrap;
+    padding: 6px 12px;
+    border: 1.5px solid var(--accent);
+    border-radius: 8px;
+    background: none;
+    color: var(--accent);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<!-- START OVER BUTTON (hidden on triage, visible on all other passages) -->
+<button id="start-over-btn" onclick="goStartOver()" aria-label="Start over">↩ Start over</button>
+
+<button id="settings-btn" onclick="toggleSettings()" aria-label="Settings">⚙️</button>
+
+<div id="settings-panel" role="menu" aria-label="Settings menu">
+  <p>Display</p>
+  <button class="settings-action" onclick="toggleDark()">🌙 Dark mode</button>
+  <button class="settings-action" onclick="cycleFontSize()">Aa Text size</button>
+  <div style="border-top:1px solid var(--border); margin: 8px 0;"></div>
+  <p>Data</p>
+  <button class="settings-action" onclick="showPatterns()">✦ What's been helping</button>
+  <button class="settings-action danger" onclick="clearData()">⌫ Clear my data</button>
+</div>
+
+<!-- Patterns modal -->
+<div id="patterns-modal" role="dialog" aria-modal="true" aria-labelledby="patterns-modal-title">
+  <div class="patterns-inner">
+    <button class="modal-close" onclick="closePatterns()" aria-label="Close What's been helping">✕</button>
+    <h2 id="patterns-modal-title">What's been helping</h2>
+    <div id="patterns-content"><p style="color:var(--muted)">Nothing yet — this fills in as you use the tool.</p></div>
+    <button class="settings-action" style="margin-top:12px;" onclick="closePatterns()">Close</button>
+  </div>
+</div>
+
+<div class="container" role="main">
+  <div class="header">
+    <span class="beacon">🔦</span>
+    <h1>Maps and Mirrors</h1>
+    <p>Your Lighthouse in the Fog</p>
+  </div>
+
+  <div class="card">
+
+    <!-- ═══════════════════════════════ TRIAGE ═══════════════════════════════ -->
+    <div class="passage active" id="triage" role="group" aria-label="Where are you right now?">
+
+      <p class="prompt">What fits right now?</p>
+      <p class="sub-prompt">Pick the closest one. You can't get this wrong.</p>
+
+      <div style="margin-bottom:16px;text-align:center;">
+        <button onclick="toggleHowItWorks()"
+          style="background:none;border:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:0.8rem;cursor:pointer;padding:4px 0;text-decoration:underline;text-underline-offset:3px;"
+          aria-expanded="false" id="how-it-works-btn">
+          How it works ↓
+        </button>
+        <div id="how-it-works-panel" style="display:none;margin-top:10px;padding:12px 14px;background:var(--fog);border-radius:10px;border:1px solid var(--border);text-align:left;">
+          <p style="font-size:0.875rem;color:var(--text);line-height:1.75;margin-bottom:0;">
+            Pick what feels closest. You'll be taken to tools that fit where you are right now.
+            Everything is optional — skip, stop, or come back any time.<br>
+            <span style="color:var(--muted);">This is not a crisis service. If you're in immediate danger, call <strong>911</strong>.</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="choices" style="gap:12px;">
+        <button class="zone-btn crisis-btn" onclick="go('crisis-now')" aria-label="I am not safe right now">
+          <span class="zone-icon"><span style="display:inline-block;width:12px;height:12px;background:#b43c32;border-radius:50%;"></span></span>
+          <div>
+            <span class="zone-label">Not safe right now</span>
+            <span class="zone-desc">I need immediate support</span>
+          </div>
+        </button>
+
+        <button class="zone-btn" onclick="go('struggling')" aria-label="Everything is too much">
+          <span class="zone-icon">🌧️</span>
+          <div>
+            <span class="zone-label">Too much</span>
+            <span class="zone-desc">Overwhelmed, heavy, anxious, or stuck</span>
+          </div>
+        </button>
+
+        <button class="zone-btn" onclick="go('thoughts')" aria-label="Can't stop thinking">
+          <span class="zone-icon">🌀</span>
+          <div>
+            <span class="zone-label">Can't stop thinking</span>
+            <span class="zone-desc">Thoughts spinning, worrying, or looping</span>
+          </div>
+        </button>
+
+        <button class="zone-btn" onclick="go('growing')" aria-label="I want to understand myself better">
+          <span class="zone-icon">🌱</span>
+          <div>
+            <span class="zone-label">Want to understand myself</span>
+            <span class="zone-desc">Reflect, explore, or build something</span>
+          </div>
+        </button>
+
+        <button class="zone-btn" onclick="go('anticipatory')" aria-label="Something difficult is coming">
+          <span class="zone-icon">🧭</span>
+          <div>
+            <span class="zone-label">Something difficult is coming</span>
+            <span class="zone-desc">I want to prepare before it hits</span>
+          </div>
+        </button>
+      </div>
+
+      <p style="font-size:0.8rem;color:var(--muted);text-align:center;line-height:1.55;">
+        This tool supports but does not replace therapy or crisis care. No personal data is collected.
+      </p>
+
+      <button class="browse-link" onclick="go('tools-index')">Browse all tools →</button>
+      <button class="browse-link" onclick="go('message-bottle')" style="margin-top:4px;">✉ Write a note to future you →</button>
+    </div>
+
+    <!-- ═══════════════════════════════ CRISIS ═══════════════════════════════ -->
+    <div class="passage" id="crisis-now" role="group" aria-label="Crisis support resources">
+      <p class="prompt">Please reach out right now.</p>
+      <p class="sub-prompt">You don't have to manage this alone. Help is available 24/7.</p>
+
+      <div class="crisis-resource">
+        <h3>🚨 Immediate danger — call 911</h3>
+        <p>If you or someone else is at risk of harm right now, call <strong>911</strong>.</p>
+      </div>
+      <div class="crisis-resource">
+        <h3>988 — Call or Text</h3>
+        <p>Free, 24/7, confidential. For mental health and substance use crises. <strong>A real person answers.</strong></p>
+      </div>
+      <div class="crisis-resource">
+        <h3>Crisis Text Line</h3>
+        <p>Text <strong>HOME to 741741</strong> if talking feels like too much right now.</p>
+      </div>
+      <div class="crisis-resource">
+        <h3>Hope for Wellness — Indigenous peoples</h3>
+        <p>Call <strong>1-855-242-3310</strong> (24/7). English, French, Cree, Ojibway, Inuktitut.</p>
+      </div>
+      <div class="crisis-resource">
+        <h3>Trans Lifeline</h3>
+        <p>Call <strong>1-877-330-6366</strong> — peer support run by trans people, for trans people.</p>
+      </div>
+
+      <div style="margin-top:16px; padding:12px 14px; background:rgba(45,90,107,0.06); border-radius:10px;">
+        <p style="font-size:0.875rem;color:var(--muted);line-height:1.65;">While you wait: press your feet into the floor. Take one slow breath in, then out. Look around and name three things you can see. You're here. Help is coming.</p>
+      </div>
+
+      <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+    </div>
+
+    <!-- ═══════════════════════════════ STRUGGLING ZONE ═══════════════════════════════ -->
+    <div class="passage" id="struggling" role="group" aria-label="What feels sharpest right now?">
+      <p class="prompt">Where does it feel sharpest?</p>
+
+      <div class="grounding-anchor">
+        <p>Press your feet into the floor. One slow breath. You're here now.</p>
+      </div>
+
+      <div class="choices">
+        <button class="choice" onclick="go('overwhelmed')">Everything is too much</button>
+        <button class="choice" onclick="go('emotions')">Carrying something heavy — grief, shame, or anger</button>
+        <button class="choice" onclick="go('stuck')">Stuck. Don't know what to do</button>
+        <button class="choice" onclick="go('alone')">Alone in this</button>
+        <button class="choice" onclick="go('body')">Body feels wound up or shut down</button>
+        <button class="choice" onclick="go('urges')">I feel pulled toward something</button>
+      </div>
+
+      <div class="safety-note">
+        If you're having thoughts that life isn't worth living, please reach out. <strong>Call or text 988 any time.</strong>
+      </div>
+
+      <button class="back-btn" onclick="go('triage')">← Back</button>
+    </div>
+
+    <!-- ═══════════════════════════════ THOUGHTS ZONE ═══════════════════════════════ -->
+    <div class="passage" id="thoughts" role="group" aria-label="What is happening in your thinking?">
+      <p class="prompt">What's happening in your thinking?</p>
+
+      <div class="grounding-anchor">
+        <p>Press your feet into the floor. One slow breath. You're here now.</p>
+      </div>
+
+      <div class="choices">
+        <button class="choice" onclick="go('thought-spiral')">Same thoughts, looping</button>
+        <button class="choice" onclick="go('self-talk')">Inner voice is harsh</button>
+        <button class="choice" onclick="go('distortions')">Thinking feels distorted or all-or-nothing</button>
+        <button class="choice" onclick="go('wise-mind')">Can't access what I know</button>
+      </div>
+
+      <button class="back-btn" onclick="go('triage')">← Back</button>
+    </div>
+
+    <!-- ═══════════════════════════════ GROWING ZONE ═══════════════════════════════ -->
+    <div class="passage" id="growing" role="group" aria-label="What would you like to explore?">
+      <p class="prompt">That's a good place to be.</p>
+      <p class="sub-prompt">What would you like to explore?</p>
+
+      <div class="choices">
+        <button class="choice" onclick="go('values')">What matters most to me right now</button>
+        <button class="choice" onclick="go('inner-voices')">The voices in my head — understanding them</button>
+        <button class="choice" onclick="go('control-check')">What I can and can't control</button>
+        <button class="choice" onclick="go('identity')">Who I am and who I'm becoming</button>
+        <button class="choice" onclick="go('systemic')">The bigger picture — it's not just me</button>
+      </div>
+
+      <button class="back-btn" onclick="go('triage')">← Back</button>
+    </div>
+
+    <!-- ═══════════════════════════════ ANTICIPATORY ═══════════════════════════════ -->
+    <div class="passage" id="anticipatory" role="group" aria-label="Preparing for something difficult">
+      <div style="padding:18px 0 20px 0;">
+        <p style="font-size:1.15rem;font-weight:500;color:var(--accent);line-height:1.6;margin-bottom:4px;">Take one slow breath.</p>
+        <p style="font-size:1.15rem;font-weight:500;color:var(--accent);line-height:1.6;margin-bottom:12px;">Notice what's already in your body — tension, anticipation, dread.</p>
+        <p style="font-size:0.85rem;color:var(--muted);">You don't have to resolve it. Just notice it's there.</p>
+      </div>
+      <p class="prompt" style="margin-top:4px;">What would help most before you go in?</p>
+
+      <div class="choices">
+        <button class="choice" onclick="go('body')">Settle my body first — I feel wound up already</button>
+        <button class="choice" onclick="go('control-check')">Sort out what's mine to worry about</button>
+        <button class="choice" onclick="go('wise-mind')">Get into a clear headspace before I go in</button>
+        <button class="choice" onclick="go('values')">Reconnect with what matters to me first</button>
+      </div>
+
+      <div style="margin-top:16px; padding:12px 14px; background:rgba(45,90,107,0.06); border-radius:10px;">
+        <p style="font-size:0.85rem;color:var(--muted);line-height:1.65;">Using tools before you need them — that's how they become reliable when you do.</p>
+      </div>
+
+      <button class="back-btn" onclick="go('triage')">← Back</button>
+    </div>
+
+    <!-- ═══════════════════════════════ SKILL PASSAGES ═══════════════════════════════ -->
+
+    <!-- OVERWHELMED -->
+    <div class="passage" id="overwhelmed" role="group" aria-label="Grounding through overwhelm">
+      <div style="padding:18px 0 20px 0;">
+        <p style="font-size:1.15rem;font-weight:500;color:var(--accent);line-height:1.6;margin-bottom:4px;">Feet on the floor.</p>
+        <p style="font-size:1.15rem;font-weight:500;color:var(--accent);line-height:1.6;margin-bottom:4px;">Look around. Name 3 things you can see.</p>
+        <p style="font-size:1.15rem;font-weight:500;color:var(--accent);line-height:1.6;margin-bottom:12px;">Stay here for 10 seconds.</p>
+        <p style="font-size:0.85rem;color:var(--muted);">Nothing to figure out right now.</p>
+      </div>
+      <hr class="divi">
+      <p class="section-label">Start here:</p>
+
+      <div class="tool-card">
+        <h3>5-4-3-2-1 Grounding</h3>
+        <p>Bring your attention back through your senses.</p>
+        <ul style="margin-top:8px;">
+          <li><strong>5</strong> things you can see</li>
+          <li><strong>4</strong> things you can touch — feel the texture</li>
+          <li><strong>3</strong> sounds you can hear</li>
+          <li><strong>2</strong> things you can smell</li>
+          <li><strong>1</strong> thing you can taste</li>
+        </ul>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about 5-4-3-2-1 Grounding"><span class="arrow">▶</span> Why this helps</button>
+        <div class="learn-more-content" aria-hidden="true">Your senses only exist right now — in this moment. Moving attention through them pulls you out of rumination and back into the present. You don't have to fight the overwhelm. You just redirect your focus, and the intensity drops.</div>
+      </div>
+
+      <p class="section-label" style="margin-top:18px;">Or try something else:</p>
+      <div class="tool-card">
+        <h3>Paced Breathing</h3>
+        <p>Inhale for <strong>4 counts</strong>, exhale slowly for <strong>6 counts</strong>. Repeat 2–3 minutes. The longer exhale is what calms your nervous system.</p>
+        <div class="breathing-wrap">
+          <div class="breathing-circle" id="ov-breath-circle">Ready</div>
+          <button class="breath-btn" onclick="startPaced('ov')">▶ Start</button>
+          <button class="breath-btn stop" onclick="stopBreath('ov')">■ Stop</button>
+        </div>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about Paced Breathing"><span class="arrow">▶</span> Why this helps</button>
+        <div class="learn-more-content" aria-hidden="true">Making your exhale longer than your inhale sends a calming signal through your nervous system. Even 2–3 slow breaths can measurably lower your heart rate. It's always with you.</div>
+      </div>
+
+      <div class="tool-card">
+        <h3>The 6/10 Rule</h3>
+        <p>If your distress is above a 6/10, ground first. You don't need to process everything at full intensity — work in smaller, safer amounts. Presence, not overwhelm, is the goal.</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about the 6/10 Rule"><span class="arrow">▶</span> Why working in smaller amounts is more effective</button>
+        <div class="learn-more-content" aria-hidden="true">When emotional intensity gets very high, the thinking brain starts to disengage — which means trying to process or "work through" a feeling at full intensity often makes it worse, not better. Working with difficult emotions in smaller doses teaches your nervous system that feelings are survivable and temporary. Over time this builds genuine tolerance — not suppression, but the ability to stay present with difficult states without needing to escape them. The goal isn't to avoid feeling. It's to feel in amounts you can actually metabolise.</div>
+      </div>
+
+      <div class="anchor-quote">"You don't have to fix it all right now. You just have to get through this moment."</div>
+
+      <div class="outcome-check">
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:6px;">Even a small shift counts.</p>
+        <p id="oc-q-0">Did this help even a little?</p>
+        <button class="outcome-btn yes" aria-describedby="oc-q-0" onclick="logAndShow('yes','overwhelmed','closure-overwhelmed','fallback-overwhelmed','esc-overwhelmed')">Yes</button>
+        <button class="outcome-btn no" aria-describedby="oc-q-0" onclick="logAndShow('no','overwhelmed','closure-overwhelmed','fallback-overwhelmed','esc-overwhelmed')">Not quite</button>
+      </div>
+      <div class="closure-msg" id="closure-overwhelmed">
+        <p>You stayed with it instead of running from it.<br><br>That's not small.</p>
+        <p style="font-size:0.82rem;color:var(--muted);margin-top:6px;margin-bottom:12px;">Grounding is worth coming back to.</p>
+                <p style="font-size:0.82rem;color:var(--muted);margin-top:4px;margin-bottom:14px;font-style:normal;">If this helped, you don't have to hold it alone.</p>
+<button class="deeper-btn" onclick="go('deeper-overwhelmed')">✦ Want to explore this more?</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+      <div class="fallback-msg" id="fallback-overwhelmed">
+        <p>That's okay. Stay with me. Try this instead.</p>
+        <button class="fallback-link" onclick="go('body')" style="font-weight:500;border-color:var(--accent);">Work with your body directly</button>
+        <button class="fallback-link" onclick="go('alone')" style="margin-top:4px;opacity:0.8;">Reach out to someone</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+      <div class="escalation-msg" id="esc-overwhelmed">
+        <p>It sounds like this might be too much for a tool right now. Reaching out is the right move.</p>
+        <button class="esc-btn phone" onclick="window.location='tel:988'">📞 Call or text 988 — 24/7</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+
+      <button class="back-btn" onclick="go('struggling')">← Back</button>
+    </div>
+
+    <!-- BODY -->
+    <div class="passage" id="body" role="group" aria-label="Body-based regulation">
+      <div style="padding:18px 0 20px 0;">
+        <p style="font-size:1.15rem;font-weight:500;color:var(--accent);line-height:1.6;margin-bottom:4px;">Feet on the floor.</p>
+        <p style="font-size:1.15rem;font-weight:500;color:var(--accent);line-height:1.6;margin-bottom:4px;">Look around. Name 3 things you can see.</p>
+        <p style="font-size:1.15rem;font-weight:500;color:var(--accent);line-height:1.6;margin-bottom:12px;">Stay here for 10 seconds.</p>
+        <p style="font-size:0.85rem;color:var(--muted);">Just focus on this.</p>
+      </div>
+      <hr class="divi">
+      <p class="section-label">Start here:</p>
+
+      <div class="tool-card">
+        <h3>Temperature Shift</h3>
+        <p>Run cold water over your wrists or splash your face. This activates your body's dive reflex — it immediately slows your heart rate and lowers arousal. Fast, simple, no equipment needed.</p>
+        <p style="margin-top:8px;font-size:0.82rem;color:var(--muted);">⚠️ If you have heart, blood pressure, or circulation concerns, check with your care team first.</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about Temperature Shift"><span class="arrow">▶</span> Why this works so fast</button>
+        <div class="learn-more-content" aria-hidden="true">Cold water on the face triggers the diving reflex — an automatic physiological response that slows your heart rate and shifts blood flow within seconds. It doesn't require thought or effort. It's one of the few techniques that works on the nervous system directly rather than through the mind. Even cold water on your wrists activates a related pathway through sudden sensory contrast.</div>
+      </div>
+
+      <p class="section-label" style="margin-top:18px;">Or try something else:</p>
+      <div class="tool-card">
+        <h3>Physiological Sigh</h3>
+        <p>Double inhale through the nose (breathe in, then sniff a little more), then one long slow exhale through your mouth. Repeat 2–3 times. Research shows even one round noticeably lowers stress.</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about Physiological Sigh"><span class="arrow">▶</span> Why this works</button>
+        <div class="learn-more-content" aria-hidden="true">When stressed, your lungs don't fully expand. The double inhale fills them completely. The long exhale tells your nervous system it's safe to relax.</div>
+      </div>
+
+      <div class="tool-card">
+        <h3>Paired Muscle Relaxation</h3>
+        <p>Tense a muscle group as you inhale — try your fists, shoulders, or jaw. Hold for 5 seconds. Release completely as you exhale. Notice the contrast. Repeat 2–3 times.</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about Paired Muscle Relaxation"><span class="arrow">▶</span> Why tension before release works</button>
+        <div class="learn-more-content" aria-hidden="true">Under stress, your muscles hold low-level tension without your awareness. Deliberately tensing a muscle group first makes that tension conscious and then gives it somewhere to go. The contrast between tension and release trains your nervous system to recognize what relaxation actually feels like — which becomes increasingly hard to detect under chronic stress. A few rounds also engages focused attention, which competes with anxious thought loops.</div>
+      </div>
+
+      <div class="tool-card">
+        <h3>Feet on the Floor</h3>
+        <p>Press your feet firmly into the ground. Move your toes. Say quietly: <em>"I am in [room]. I am okay right now."</em> Repeat until you feel more anchored.</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about Feet on the Floor"><span class="arrow">▶</span> Why this works</button>
+        <div class="learn-more-content" aria-hidden="true">Feeling the weight of your body sends a direct signal to your nervous system that you are here and safe. Especially helpful when you feel checked out or disconnected.</div>
+      </div>
+
+      <div class="outcome-check">
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:6px;">Even a small shift counts.</p>
+        <p id="oc-q-1">Did this help even a little?</p>
+        <button class="outcome-btn yes" aria-describedby="oc-q-1" onclick="logAndShow('yes','body','closure-body','fallback-body','esc-body')">Yes</button>
+        <button class="outcome-btn no" aria-describedby="oc-q-1" onclick="logAndShow('no','body','closure-body','fallback-body','esc-body')">Not quite</button>
+      </div>
+      <div class="closure-msg" id="closure-body">
+        <p>You worked with your body instead of fighting it.</p>
+        <p style="font-size:0.82rem;color:var(--muted);margin-top:6px;margin-bottom:12px;">Your body knows how to settle. That's always available.</p>
+                <p style="font-size:0.82rem;color:var(--muted);margin-top:4px;margin-bottom:14px;font-style:normal;">If this helped, you don't have to hold it alone.</p>
+<button class="deeper-btn" onclick="go('deeper-overwhelmed')">✦ Want to go a little deeper?</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+      <div class="fallback-msg" id="fallback-body">
+        <p>That's okay. Stay with me. Try this instead.</p>
+        <button class="fallback-link" onclick="go('overwhelmed')" style="font-weight:500;border-color:var(--accent);">Grounding through your senses</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+      <div class="escalation-msg" id="esc-body">
+        <p>It sounds like you might need more than a tool right now.</p>
+        <button class="esc-btn phone" onclick="window.location='tel:988'">📞 Call or text 988 — 24/7</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+
+      <button class="back-btn" onclick="go('struggling')">← Back</button>
+    </div>
+
+    <!-- EMOTIONS -->
+    <div class="passage" id="emotions" role="group" aria-label="Working with emotions">
+      <div style="padding:18px 0 20px 0;">
+        <p style="font-size:1.15rem;font-weight:500;color:var(--accent);line-height:1.6;margin-bottom:4px;">Hand on your chest. Feel it rise and fall.</p>
+        <p style="font-size:1.15rem;font-weight:500;color:var(--accent);line-height:1.6;margin-bottom:12px;">That's enough for right now.</p>
+        <p style="font-size:0.85rem;color:var(--muted);">You don't have to name it yet. Just let it be there.</p>
+      </div>
+      <hr class="divi">
+      <p class="section-label">Working with heavy feelings</p>
+
+      <div class="tool-card">
+        <h3>Name It to Tame It</h3>
+        <p>Labelling an emotion — <em>"I'm angry," "I feel grief"</em> — actually reduces its intensity in the brain. The more specific, the better. "I feel embarrassed" calms more than "I feel bad."</p>
+        <p style="margin-top:8px;">Where do you feel it in your body? Tight chest → anxiety or anger. Heavy chest → grief. Heat in face → anger or shame. Stomach drop → fear.</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about Name It to Tame It"><span class="arrow">▶</span> Why labelling an emotion changes it</button>
+        <div class="learn-more-content" aria-hidden="true">Brain imaging research shows that putting a word to a feeling activates the prefrontal cortex — the thinking brain — while reducing activity in the amygdala, which drives emotional reactivity. This happens even with a single word. The more specific the label, the stronger the effect — "I feel embarrassed" produces more settling than "I feel bad." You're not dismissing the feeling. You're changing its signal strength.</div>
+      </div>
+
+      <div class="tool-card">
+        <h3>Guilt vs Shame — An Important Difference</h3>
+        <p><strong>Guilt says:</strong> "I did something I don't feel good about." It's about behaviour — and can guide repair.<br>
+        <strong>Shame says:</strong> "I am bad, broken, unworthy." It's about identity — and shuts people down.</p>
+        <p style="margin-top:8px;">Which one are you carrying right now?</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about Guilt vs Shame"><span class="arrow">▶</span> Why this matters</button>
+        <div class="learn-more-content" aria-hidden="true">Guilt can motivate repair and change. Shame tends to create hiding, avoidance, and escape — and increases risk. Self-compassion makes accountability feel safe enough to stay with.</div>
+      </div>
+
+      <div class="tool-card">
+        <h3>Emotions Come in Waves</h3>
+        <p>Even strong feelings usually peak and pass within minutes when not fought or avoided. Staying present without escaping — that's how emotions move through instead of getting stuck.</p>
+        <p style="margin-top:8px;font-style:italic;color:var(--muted);">"I can stay with this feeling. It will rise and fall."</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about emotions as waves"><span class="arrow">▶</span> Why fighting emotions makes them last longer</button>
+        <div class="learn-more-content" aria-hidden="true">Emotions are temporary — they have a beginning, a peak, and an end. What stretches them out is what happens when they arrive. Fighting an emotion — trying to suppress it, reason it away, or escape it — keeps the emotional loop active. Avoiding it delays its completion. When you stay present with a feeling without trying to change it, you allow it to move through its natural arc. The peak itself is usually minutes. It's the story we tell afterward — and the effort to push it away — that makes it feel permanent.</div>
+      </div>
+
+      <div class="tool-card">
+        <h3>What's Underneath the Anger</h3>
+        <p>Anger often protects something more vulnerable. Ask: <em>"If I weren't angry right now, what would I be feeling?"</em> Hurt, fear, and shame are common answers. That's usually where the real need lives.</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about what's underneath anger"><span class="arrow">▶</span> Why this matters</button>
+        <div class="learn-more-content" aria-hidden="true">Anger can be a primary emotion — but often it's secondary, covering something that feels more exposing: hurt, fear, grief, shame. Acting from the surface emotion tends to miss the actual need. Asking "what would I feel if I weren't angry?" creates a moment of honest contact with what's actually driving it. That's where the real work — and the real relief — usually lives.</div>
+        <p style="margin-top:8px;font-size:0.82rem;color:var(--muted);">You don't have to resolve the anger. Just get one layer closer to what's underneath it.</p>
+      </div>
+
+      <div class="outcome-check">
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:6px;">Even a small shift counts.</p>
+        <p id="oc-q-2">Did this help even a little?</p>
+        <button class="outcome-btn yes" aria-describedby="oc-q-2" onclick="logAndShow('yes','emotions','closure-emotions','fallback-emotions','esc-emotions')">Yes</button>
+        <button class="outcome-btn no" aria-describedby="oc-q-2" onclick="logAndShow('no','emotions','closure-emotions','fallback-emotions','esc-emotions')">Not quite</button>
+      </div>
+      <div class="closure-msg" id="closure-emotions">
+        <p>You moved toward the feeling instead of away from it.</p>
+        <p style="font-size:0.82rem;color:var(--muted);margin-top:6px;margin-bottom:12px;">Naming it helps. That's yours to keep.</p>
+                <p style="font-size:0.82rem;color:var(--muted);margin-top:4px;margin-bottom:14px;font-style:normal;">If this helped, you don't have to hold it alone.</p>
+<button class="deeper-btn" onclick="go('deeper-emotions')">✦ Want to explore this more?</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+      <div class="fallback-msg" id="fallback-emotions">
+        <p>That's okay. Stay with me. Try this instead.</p>
+        <button class="fallback-link" onclick="go('body')">Work with your body first</button>
+        <button class="fallback-link" onclick="go('alone')">Talk to someone</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+      <div class="escalation-msg" id="esc-emotions">
+        <p>It sounds like this needs more than a tool right now.</p>
+        <button class="esc-btn phone" onclick="window.location='tel:988'">📞 Call or text 988 — 24/7</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+
+      <button class="back-btn" onclick="go('struggling')">← Back</button>
+    </div>
+
+    <!-- STUCK -->
+    <div class="passage" id="stuck" role="group" aria-label="Finding direction">
+      <p class="prompt">Feeling stuck is information, not failure.</p>
+      <hr class="divi">
+      <p class="section-label">Finding Direction</p>
+
+      <div class="tool-card">
+        <h3>Control Check</h3>
+        <p>Ask: <em>"Is this something I can actually influence right now?"</em></p>
+        <ul style="margin-top:8px;">
+          <li><strong>Yes →</strong> Take one small action. Just one.</li>
+          <li><strong>No →</strong> Move to acceptance and grounding. Rumination pretends to be problem-solving. It usually isn't.</li>
+        </ul>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about Control Check"><span class="arrow">▶</span> More</button>
+        <div class="learn-more-content" aria-hidden="true">Research shows rumination increases anxiety while reducing your ability to solve things. The control check interrupts this by asking one question: can I act on this or not? If not, acceptance tools — not more thinking.</div>
+      </div>
+
+      <div class="tool-card">
+        <h3>One Small Thing</h3>
+        <p>What's the single smallest action you could take today? Not the solution — just the next right step. What's the easiest, most manageable first move?</p>
+        <p style="margin-top:8px;font-size:0.82rem;color:var(--muted);">Action doesn't have to be big to be meaningful. One small thing is still forward motion.</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about One Small Thing"><span class="arrow">▶</span> Why small beats big when you're stuck</button>
+        <div class="learn-more-content" aria-hidden="true">When you're stuck, the brain narrows — options shrink, problems feel monolithic, and anything short of a complete solution feels pointless. This is why large goals fail under distress and small actions don't. A small action doesn't require the problem to be solved first. It just requires one step to be possible right now. Small actions also produce evidence: proof that movement is possible, which directly counters the paralysis that stress creates. Momentum is built from small, repeated steps — not from waiting until you feel ready.</div>
+      </div>
+
+      <div class="tool-card">
+        <h3>Sort What's Yours to Carry</h3>
+        <p>Some of what's weighing on you might not actually be yours. Which of your current challenges feel personal — rooted in your habits or thoughts? Which are shaped by external things — work demands, housing, systems, or other people's choices?</p>
+        <p style="margin-top:8px;font-size:0.82rem;color:var(--muted);">Just because someone handed it to you doesn't mean it was yours to hold.</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about Sort What's Yours to Carry"><span class="arrow">▶</span> Why externalising the load matters</button>
+        <div class="learn-more-content" aria-hidden="true">People under chronic stress often carry a mix of personal challenges and systemic ones — poverty, discrimination, housing instability, workplace inequity — but experience all of it as personal failure. Sorting what is genuinely yours from what belongs to a system or another person isn't denial — it's accuracy. When you stop fighting something that isn't yours, you free up real energy for the parts that are. The load doesn't disappear, but it becomes the right size.</div>
+      </div>
+
+            <div class="tool-card">
+        <h3>If/Then Plan</h3>
+        <p>When you don't know what to do next, commit to one conditional:</p>
+        <p style="margin-top:8px;font-style:italic;color:var(--accent);">"If [this moment], I will [one small action]."</p>
+        <p style="margin-top:8px;font-size:0.875rem;color:var(--text);">Example: <em>"If I'm still stuck after 10 minutes, I'll text one person."</em></p>
+        <p style="margin-top:8px;font-size:0.82rem;color:var(--muted);">You're not solving it. You're giving yourself a direction when the moment comes.</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about if then planning"><span class="arrow">▶</span> Why this works</button>
+        <div class="learn-more-content" aria-hidden="true">If/then plans — implementation intentions — are one of the most reliably effective behaviour change tools in research. Deciding in advance what you'll do in a specific situation removes the need for willpower in the moment. The decision is already made. You just follow through on a plan your calmer self created.</div>
+      </div>
+
+      <div class="outcome-check">
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:6px;">Even a small shift counts.</p>
+        <p id="oc-q-3">Did this help even a little?</p>
+        <button class="outcome-btn yes" aria-describedby="oc-q-3" onclick="logAndShow('yes','stuck','closure-stuck','fallback-stuck','esc-stuck')">Yes</button>
+        <button class="outcome-btn no" aria-describedby="oc-q-3" onclick="logAndShow('no','stuck','closure-stuck','fallback-stuck','esc-stuck')">Not quite</button>
+      </div>
+      <div class="closure-msg" id="closure-stuck">
+        <p>You looked at the situation instead of just spinning in it.</p>
+        <p style="font-size:0.82rem;color:var(--muted);margin-top:6px;margin-bottom:12px;">Sorting what's yours makes the rest more manageable.</p>
+                <p style="font-size:0.82rem;color:var(--muted);margin-top:4px;margin-bottom:14px;font-style:normal;">If this helped, you don't have to hold it alone.</p>
+<button class="deeper-btn" onclick="go('control-check')">✦ Go deeper — what can you actually control?</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+      <div class="fallback-msg" id="fallback-stuck">
+        <p>That's okay. Stay with me. Try this instead.</p>
+        <button class="fallback-link" onclick="go('wise-mind')">Access your Wise Mind</button>
+        <button class="fallback-link" onclick="go('values')">Reconnect with what matters</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+      <div class="escalation-msg" id="esc-stuck">
+        <p>Some stuck feelings need more than a tool. Reaching out is the right move.</p>
+        <button class="esc-btn phone" onclick="window.location='tel:988'">📞 Call or text 988 — 24/7</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+
+      <button class="back-btn" onclick="go('struggling')">← Back</button>
+    </div>
+
+    <!-- ALONE -->
+    <div class="passage" id="alone" role="group" aria-label="Connection and support">
+      <p class="prompt">Loneliness in hard times is real, and often the least talked about part.</p>
+      <hr class="divi">
+      <p class="section-label">Connection + Support</p>
+
+      <div class="tool-card">
+        <h3>Reach Out — One Person, Right Now</h3>
+        <p>Not a grand gesture. One text or call to someone safe. <em>"Hey, thinking of you"</em> counts. Connection doesn't have to be a conversation about your struggles to matter.</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about Reaching Out"><span class="arrow">▶</span> More</button>
+        <div class="learn-more-content" aria-hidden="true">Having even one supportive person measurably reduces distress. Your brain is wired to share its load with others — problems feel smaller and more manageable when someone else is present.</div>
+      </div>
+
+      <div class="tool-card">
+        <h3>Hyperindependence</h3>
+        <p><em>"I can only rely on myself"</em> is often a survival strategy, not a preference. If asking for help feels dangerous or shameful, that's worth exploring. Isolation increases risk. Connection protects.</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about hyperindependence"><span class="arrow">▶</span> Where hyperindependence comes from</button>
+        <div class="learn-more-content" aria-hidden="true">Hyperindependence usually develops in environments where depending on others was genuinely unsafe — where help didn't come, where vulnerability was exploited, or where self-sufficiency was the only reliable option. It's a learned protection, not a personality trait. In recovery, it can feel like strength — but isolation is consistently one of the strongest predictors of relapse and worsening mental health. Recognizing "I don't need anyone" as a survival response, not a preference, creates the possibility of slowly and safely testing whether that's still true.</div>
+      </div>
+
+      <div class="tool-card">
+        <h3>ConnexOntario</h3>
+        <p>Find mental health and social services in your community. Call <strong>1-866-531-2600</strong> or visit <strong>connexontario.ca</strong>. Free, 24/7, available in multiple languages. This is a referral service, not a crisis line.</p>
+      </div>
+
+            <div class="tool-card">
+        <h3>Say What You Need</h3>
+        <p>Pick the sentence that fits and say it — out loud, in a text, or just to yourself to get clear.</p>
+        <ul style="margin-top:8px;font-style:italic;line-height:2;">
+          <li>"I need some support right now."</li>
+          <li>"I'm not okay and I don't know what I need yet."</li>
+          <li>"Can you just be here with me for a minute?"</li>
+        </ul>
+        <p style="margin-top:8px;font-size:0.82rem;color:var(--muted);">You don't need the right words. You just need a direction.</p>
+      </div>
+
+      <div class="tool-card">
+        <h3>Repair Attempt</h3>
+        <p>You don't have to resolve it. You just have to interrupt the spiral. Try one of these — even if it feels awkward:</p>
+        <ul style="margin-top:8px;font-style:italic;line-height:2;">
+          <li>"I don't want to fight. Can we slow down?"</li>
+          <li>"I got that wrong. I'm sorry."</li>
+          <li>"I'm overwhelmed right now. Can we come back to this?"</li>
+        </ul>
+        <p style="margin-top:8px;font-size:0.82rem;color:var(--muted);">Repair doesn't require agreement. It just requires one person to reach.</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about repair attempts"><span class="arrow">▶</span> Why this works</button>
+        <div class="learn-more-content" aria-hidden="true">Research on conflict consistently shows that repair attempts — even clumsy ones — significantly reduce escalation. The content matters less than the intention. Reaching toward someone when things are hard is the move that changes the trajectory.</div>
+      </div>
+
+      <div class="outcome-check">
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:6px;">Even a small shift counts.</p>
+        <p id="oc-q-4">Did this help even a little?</p>
+        <button class="outcome-btn yes" aria-describedby="oc-q-4" onclick="logAndShow('yes','alone','closure-alone','fallback-alone','esc-alone')">Yes</button>
+        <button class="outcome-btn no" aria-describedby="oc-q-4" onclick="logAndShow('no','alone','closure-alone','fallback-alone','esc-alone')">Not quite</button>
+      </div>
+      <div class="closure-msg" id="closure-alone">
+        <p>You chose to reach toward connection instead of staying isolated.</p>
+        <p style="font-size:0.82rem;color:var(--muted);margin-top:6px;margin-bottom:12px;">Reaching toward someone changes something.</p>
+                <p style="font-size:0.82rem;color:var(--muted);margin-top:4px;margin-bottom:14px;font-style:normal;">If this helped, you don't have to hold it alone.</p>
+<button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+      <div class="fallback-msg" id="fallback-alone">
+        <p>That's okay. Stay with me. Try this instead.</p>
+        <button class="fallback-link" onclick="go('alone')" style="font-weight:500;border-color:var(--accent);">Reach out — one person, right now</button>
+        <button class="fallback-link" onclick="window.open('https://connexontario.ca','_blank')" style="margin-top:4px;opacity:0.85;">Find community support — ConnexOntario</button>
+        <button class="fallback-link" onclick="go('body')" style="margin-top:4px;opacity:0.7;">Try settling your body first</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+      <div class="escalation-msg" id="esc-alone">
+        <p>Please reach out to someone directly. You don't have to manage this alone.</p>
+        <button class="esc-btn phone" onclick="window.location='tel:988'">📞 Call or text 988 — 24/7</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+
+      <button class="back-btn" onclick="go('struggling')">← Back</button>
+    </div>
+
+    <!-- THOUGHT SPIRAL -->
+    <div class="passage" id="thought-spiral" role="group" aria-label="Breaking thought loops">
+      <div style="padding:18px 0 20px 0;">
+        <p style="font-size:1.15rem;font-weight:500;color:var(--accent);line-height:1.6;margin-bottom:4px;">Stop. Don't follow the thought.</p>
+        <p style="font-size:1.15rem;font-weight:500;color:var(--accent);line-height:1.6;margin-bottom:12px;">Look at where you are right now.</p>
+        <p style="font-size:0.85rem;color:var(--muted);">You don't have to figure it out. Just step off the track for a moment.</p>
+      </div>
+      <hr class="divi">
+      <p class="section-label">Tools to break the loop</p>
+
+      <div class="tool-card">
+        <h3>Control Check</h3>
+        <p>Ask: <em>"Is this something I can actually influence right now?"</em> If yes — take one small action. If no — move to grounding. Rumination pretends to be problem-solving. It usually isn't.</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about Control Check for rumination"><span class="arrow">▶</span> Why rumination feels productive but isn't</button>
+        <div class="learn-more-content" aria-hidden="true">Rumination activates the same brain regions as genuine problem-solving, which is why it feels like you're doing something useful. Research consistently shows the opposite — rumination increases depression and anxiety while actually impairing your ability to solve problems. The control check interrupts this by forcing a single binary question: can I act on this right now, or not? If yes, one small action breaks the loop. If no, you've just removed the justification for continuing to circle it.</div>
+      </div>
+
+      <div class="tool-card">
+        <h3>Leaves on a Stream</h3>
+        <p>Imagine a gently flowing stream. Each thought that shows up — place it on a leaf and watch it drift away without chasing it. You're the observer, not the thought.</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about Leaves on a Stream"><span class="arrow">▶</span> More</button>
+        <div class="learn-more-content" aria-hidden="true">Instead of getting caught up in your thoughts, you practise watching them from a distance. You can't stop your thoughts — and fighting them takes energy. This is easier: notice them, place them on a leaf, let them pass.</div>
+      </div>
+
+      <div class="tool-card">
+        <h3>Worry Postponement</h3>
+        <p>Write down everything on your mind. Tell yourself: <em>"I'll come back to this at [specific time]."</em> The thoughts don't need to be solved right now. Give your brain permission to set them down.</p>
+        <p style="margin-top:8px;font-size:0.82rem;color:var(--muted);">Most people find that when they return to the worry later, it doesn't feel as urgent or scary.</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about Worry Postponement"><span class="arrow">▶</span> Why postponing works better than suppressing</button>
+        <div class="learn-more-content" aria-hidden="true">Trying to stop a worry usually makes it worse — the brain interprets the suppression effort as confirmation that the thought is dangerous, and keeps circling back to it. Postponement works differently: instead of fighting the thought, you acknowledge it and give it a specific time. This sends a signal that the thought has been received and doesn't need to keep repeating. Writing it down adds another layer — externalising the worry onto paper reduces the brain's need to hold it internally. Most people find the urgency drops considerably when they return.</div>
+      </div>
+
+      <div class="outcome-check">
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:6px;">Even a small shift counts.</p>
+        <p id="oc-q-5">Did this help even a little?</p>
+        <button class="outcome-btn yes" aria-describedby="oc-q-5" onclick="logAndShow('yes','thought-spiral','closure-thought-spiral','fallback-thought-spiral','esc-thought-spiral')">Yes</button>
+        <button class="outcome-btn no" aria-describedby="oc-q-5" onclick="logAndShow('no','thought-spiral','closure-thought-spiral','fallback-thought-spiral','esc-thought-spiral')">Not quite</button>
+      </div>
+      <div class="closure-msg" id="closure-thought-spiral">
+        <p>You interrupted the loop — even briefly. That matters.</p>
+        <p style="font-size:0.82rem;color:var(--muted);margin-top:6px;margin-bottom:12px;">Stepping off the track — even briefly — breaks the loop.</p>
+                <p style="font-size:0.82rem;color:var(--muted);margin-top:4px;margin-bottom:14px;font-style:normal;">If this helped, you don't have to hold it alone.</p>
+<button class="deeper-btn" onclick="go('distortions')">✦ Explore thinking patterns deeper</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+      <div class="fallback-msg" id="fallback-thought-spiral">
+        <p>That's okay. Stay with me. Try this instead.</p>
+        <button class="fallback-link" onclick="go('body')">Settle your body first</button>
+        <button class="fallback-link" onclick="go('wise-mind')">Access Wise Mind</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+      <div class="escalation-msg" id="esc-thought-spiral">
+        <p>Loops that won't stop sometimes need more support.</p>
+        <button class="esc-btn phone" onclick="window.location='tel:988'">📞 Call or text 988 — 24/7</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+
+      <button class="back-btn" onclick="go('thoughts')">← Back</button>
+    </div>
+
+    <!-- SELF-TALK -->
+    <div class="passage" id="self-talk" role="group" aria-label="Managing self-talk">
+      <p class="prompt">The way you talk to yourself matters — especially when things are hard.</p>
+      <hr class="divi">
+      <p class="section-label">Managing Self-Talk</p>
+
+      <div class="tool-card">
+        <h3>"I'm Having the Thought That…"</h3>
+        <p>Instead of <em>"I'm a failure,"</em> try <em>"I'm having the thought that I'm a failure."</em> This creates space between you and the thought — reducing its authority without dismissing it.</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about I'm Having the Thought That"><span class="arrow">▶</span> More</button>
+        <div class="learn-more-content" aria-hidden="true">Adding "I'm having the thought that..." makes the thought something you're observing — a mental event, not reality. Research shows this reduces emotional intensity without needing to argue with the thought.</div>
+      </div>
+
+      <div class="tool-card">
+        <h3>The Friend Test</h3>
+        <p>Take the thought. Would you say that exact thing to a close friend who was struggling? If not — it's not fair to say it to yourself either. What would the kinder, more accurate version be?</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about The Friend Test"><span class="arrow">▶</span> Why we're harsher on ourselves than others</button>
+        <div class="learn-more-content" aria-hidden="true">Most people apply significantly harsher standards to themselves than to anyone they care about — but the double standard is usually not conscious. There's often a genuine belief that "my situation is different" or "I deserve the criticism." The friend test creates a moment of honest comparison that's hard to dismiss. It doesn't tell you what to think — it just highlights the inconsistency, which is often enough to loosen the self-critical loop.</div>
+      </div>
+
+      <div class="tool-card">
+        <h3>Thought Diffusion — Lighten the Grip</h3>
+        <p>Try one of these to loosen a sticky thought:</p>
+        <ul style="margin-top:8px;">
+          <li>Say it out loud in a cartoon voice</li>
+          <li>Sing it to the tune of "Happy Birthday"</li>
+          <li>Write it down and read it slowly — like a script, not a verdict</li>
+        </ul>
+        <p style="margin-top:8px;font-size:0.82rem;color:var(--muted);">You don't have to delete the thought. Just loosen its grip.</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about Thought Diffusion"><span class="arrow">▶</span> Why making a thought absurd reduces its power</button>
+        <div class="learn-more-content" aria-hidden="true">Thoughts feel authoritative partly because of how seriously we hold them. Singing a thought to a cartoon tune or saying it in a silly voice doesn't change its content — it changes its relationship to you. Instead of the thought feeling like a fact about reality, it becomes something your mind produced. This technique comes from ACT — cognitive defusion — and research shows it reduces the emotional impact and believability of thoughts without needing to argue with them or replace them with something positive.</div>
+      </div>
+
+      <div class="outcome-check">
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:6px;">Even a small shift counts.</p>
+        <p id="oc-q-6">Did this help even a little?</p>
+        <button class="outcome-btn yes" aria-describedby="oc-q-6" onclick="logAndShow('yes','self-talk','closure-self-talk','fallback-self-talk','esc-self-talk')">Yes</button>
+        <button class="outcome-btn no" aria-describedby="oc-q-6" onclick="logAndShow('no','self-talk','closure-self-talk','fallback-self-talk','esc-self-talk')">Not quite</button>
+      </div>
+      <div class="closure-msg" id="closure-self-talk">
+        <p>You spoke to yourself differently than the critic wanted.</p>
+        <p style="font-size:0.82rem;color:var(--muted);margin-top:6px;margin-bottom:12px;">That shift in how you talked to yourself — notice it.</p>
+                <p style="font-size:0.82rem;color:var(--muted);margin-top:4px;margin-bottom:14px;font-style:normal;">If this helped, you don't have to hold it alone.</p>
+<button class="deeper-btn" onclick="go('inner-voices')">✦ Go deeper — who's talking in there?</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+      <div class="fallback-msg" id="fallback-self-talk">
+        <p>That's okay. Stay with me. Try this instead.</p>
+        <button class="fallback-link" onclick="go('distortions')">Look at thinking patterns</button>
+        <button class="fallback-link" onclick="go('wise-mind')">Access Wise Mind</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+      <div class="escalation-msg" id="esc-self-talk">
+        <p>Harsh self-talk that won't stop sometimes needs more support.</p>
+        <button class="esc-btn phone" onclick="window.location='tel:988'">📞 Call or text 988 — 24/7</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+
+      <button class="back-btn" onclick="go('thoughts')">← Back</button>
+    </div>
+
+    <!-- DISTORTIONS -->
+    <div class="passage" id="distortions" role="group" aria-label="Recognising thinking patterns">
+      <p class="prompt">Thinking patterns aren't character flaws — they're mind habits. The brain filling in gaps too confidently.</p>
+      <hr class="divi">
+      <p class="section-label">Common Thinking Traps</p>
+
+      <div class="tool-card">
+        <h3>11 Patterns Worth Knowing</h3>
+        <ul>
+          <li><strong>Catastrophizing</strong> — jumping to worst-case</li>
+          <li><strong>All-or-nothing</strong> — no middle ground</li>
+          <li><strong>Mind reading</strong> — assuming what others think</li>
+          <li><strong>Fortune telling</strong> — predicting failure</li>
+          <li><strong>Emotional reasoning</strong> — "I feel like a failure, so I must be"</li>
+          <li><strong>Should statements</strong> — rigid rules that create shame</li>
+          <li><strong>Labelling</strong> — "I am a failure" vs "I failed at this"</li>
+          <li><strong>Personalization</strong> — taking blame for things outside your control</li>
+          <li><strong>Filtering</strong> — noticing only the negative</li>
+          <li><strong>Overgeneralising</strong> — one event becomes a permanent pattern</li>
+          <li><strong>Magnifying/minimising</strong> — inflating the bad, shrinking the good</li>
+        </ul>
+        <p style="margin-top:10px;font-size:0.85rem;color:var(--muted);">Which ones feel familiar? You don't have to change them — just naming the pattern interrupts the automatic assumption that the thought is simply true.</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about cognitive distortions"><span class="arrow">▶</span> Why naming the pattern helps</button>
+        <div class="learn-more-content" aria-hidden="true">Cognitive distortions are systematic — they don't skew randomly, they reliably skew toward threat, failure, or worthlessness. That's why they feel so convincing. When you name the pattern — "that's catastrophizing" — you interrupt the automatic acceptance that what you're thinking is simply true. The thought doesn't disappear, but it loses its authority. That gap between "thought" and "fact" is where change becomes possible.</div>
+      </div>
+
+      <div class="tool-card">
+        <h3>Thought Record — 4 Steps</h3>
+        <ol>
+          <li>Write the thought exactly as it came</li>
+          <li>Name the pattern (from the list above)</li>
+          <li>Rewrite it in a fair, honest way — as you'd say to a friend</li>
+          <li>Notice: did the feeling shift even slightly?</li>
+        </ol>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about Thought Record"><span class="arrow">▶</span> Why this works</button>
+        <div class="learn-more-content" aria-hidden="true">The thought record doesn't work by replacing negative thoughts with positive ones — your brain rejects implausible substitutions. It works by building cognitive flexibility: the ability to generate more than one interpretation of the same event. Under stress, the brain fixes on one reading and treats it as fact. The thought record practises generating alternatives. Even a small shift in certainty — from "this is definitely true" to "this might be true" — changes how much power the thought has.</div>
+      </div>
+
+      <div class="outcome-check">
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:6px;">Even a small shift counts.</p>
+        <p id="oc-q-7">Did this help even a little?</p>
+        <button class="outcome-btn yes" aria-describedby="oc-q-7" onclick="logAndShow('yes','distortions','closure-distortions','fallback-distortions','esc-distortions')">Yes</button>
+        <button class="outcome-btn no" aria-describedby="oc-q-7" onclick="logAndShow('no','distortions','closure-distortions','fallback-distortions','esc-distortions')">Not quite</button>
+      </div>
+      <div class="closure-msg" id="closure-distortions">
+        <p>You named the pattern — that's the hardest part.</p>
+        <p style="font-size:0.82rem;color:var(--muted);margin-top:6px;margin-bottom:12px;">Naming the pattern loosens its grip. Remember that.</p>
+                <p style="font-size:0.82rem;color:var(--muted);margin-top:4px;margin-bottom:14px;font-style:normal;">If this helped, you don't have to hold it alone.</p>
+<button class="deeper-btn" onclick="go('deeper-distortions')">✦ Decode a thought more fully</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+      <div class="fallback-msg" id="fallback-distortions">
+        <p>That's okay. Stay with me. Try this instead.</p>
+        <button class="fallback-link" onclick="go('wise-mind')">Access Wise Mind</button>
+        <button class="fallback-link" onclick="go('self-talk')">Work with self-talk</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+      <div class="escalation-msg" id="esc-distortions">
+        <p>Persistent distorted thinking sometimes needs professional support.</p>
+        <button class="esc-btn phone" onclick="window.location='tel:988'">📞 Call or text 988 — 24/7</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+
+      <button class="back-btn" onclick="go('thoughts')">← Back</button>
+    </div>
+
+    <!-- WISE MIND -->
+    <div class="passage" id="wise-mind" role="group" aria-label="Accessing Wise Mind">
+      <p class="prompt">Wise Mind is where your feelings and your thinking work together — the calm answer, not the loud one.</p>
+      <hr class="divi">
+      <p class="section-label">Accessing Wise Mind</p>
+
+      <div class="tool-card">
+        <h3>Three Mind States</h3>
+        <p><strong>Emotion Mind</strong> — feelings drive decisions. Fast, reactive, intense.<br>
+        <strong>Rational Mind</strong> — logic leads, disconnected from what matters.<br>
+        <strong>Wise Mind</strong> — the balance point. You notice feelings and think clearly. It often feels like: <em>"This is the next right step."</em></p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about Three Mind States"><span class="arrow">▶</span> Why pure logic isn't always the answer</button>
+        <div class="learn-more-content" aria-hidden="true">Most people assume that the more rational they are, the better their decisions. Research says otherwise. Emotion Mind alone is reactive and short-sighted. Reasonable Mind alone strips out the values and relationships that make a decision actually right for you. Wise Mind integrates both — you feel what you feel and you also think clearly. The goal isn't to eliminate emotion from decision-making. It's to stop either mind from running the show alone.</div>
+      </div>
+
+      <div class="tool-card">
+        <h3>How to Access It Right Now</h3>
+        <ul>
+          <li>Put both feet flat on the floor</li>
+          <li>Take one slow breath in and out — feel your chest move</li>
+          <li>Ask: <em>"What feels true right now?"</em></li>
+          <li>Listen for the calm answer, not the loud one</li>
+        </ul>
+        <p style="margin-top:8px;font-size:0.82rem;color:var(--muted);">Wise Mind tends to be calm and certain. Emotion Mind is urgent. The quiet, steady answer is usually Wise Mind.</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about accessing Wise Mind"><span class="arrow">▶</span> Why grounding first matters</button>
+        <div class="learn-more-content" aria-hidden="true">You can't access Wise Mind when your body is flooded — the physical grounding steps come first for a reason. Feet on the floor, one slow breath, feeling your chest move — each of these shifts your body's stress response enough to let the thinking brain re-engage. The question "what feels true right now?" accesses a quieter kind of knowing than direct logical analysis. Wise Mind tends to speak at the same volume as everything else — it's just not urgent. The grounding creates the conditions to hear it.</div>
+      </div>
+
+      <div class="outcome-check">
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:6px;">Even a small shift counts.</p>
+        <p id="oc-q-8">Did this help even a little?</p>
+        <button class="outcome-btn yes" aria-describedby="oc-q-8" onclick="logAndShow('yes','wise-mind','closure-wise-mind','fallback-wise-mind','esc-wise-mind')">Yes</button>
+        <button class="outcome-btn no" aria-describedby="oc-q-8" onclick="logAndShow('no','wise-mind','closure-wise-mind','fallback-wise-mind','esc-wise-mind')">Not quite</button>
+      </div>
+      <div class="closure-msg" id="closure-wise-mind">
+        <p>You listened for the quiet answer instead of the loud one.</p>
+        <p style="font-size:0.82rem;color:var(--muted);margin-top:6px;margin-bottom:12px;">The quiet answer is always there when you slow down enough.</p>
+                <p style="font-size:0.82rem;color:var(--muted);margin-top:4px;margin-bottom:14px;font-style:normal;">If this helped, you don't have to hold it alone.</p>
+<button class="deeper-btn" onclick="go('values')">✦ What does Wise Mind say matters most?</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+      <div class="fallback-msg" id="fallback-wise-mind">
+        <p>That's okay. Try settling your body first, then return here.</p>
+        <button class="fallback-link" onclick="go('body')">Settle your body</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+      <div class="escalation-msg" id="esc-wise-mind">
+        <p>Sometimes we need more than a tool to access clarity.</p>
+        <button class="esc-btn phone" onclick="window.location='tel:988'">📞 Call or text 988 — 24/7</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+
+      <button class="back-btn" onclick="go('thoughts')">← Back</button>
+    </div>
+
+    <!-- VALUES -->
+    <div class="passage" id="values" role="group" aria-label="Connecting with values">
+      <p class="prompt">Values don't disappear when things get hard. They point forward even when everything else feels unclear.</p>
+      <hr class="divi">
+      <p class="section-label">The Values Vault</p>
+
+      <div class="tool-card">
+        <h3>What Are Values?</h3>
+        <p>Values are directions, not destinations. You don't complete them — you live toward them. They're not what you <em>should</em> want. They're what actually matters to you, in your bones.</p>
+        <p style="margin-top:8px;">Examples: honesty, connection, freedom, stability, creativity, family, growth, contribution, health, justice, belonging.</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about values"><span class="arrow">▶</span> Why values — not goals — are the anchor</button>
+        <div class="learn-more-content" aria-hidden="true">Goals can be missed, abandoned, or completed. Values don't go away. That's why they're more reliable as a compass — especially when motivation drops, when circumstances change, or when external pressure makes it hard to know what you actually want. Acting in the direction of a genuine value produces more sustained engagement than acting out of fear or obligation. The key word is genuine — values that come from "what I should care about" don't hold the same weight as ones that come from "what matters to me in my bones."</div>
+      </div>
+
+      <div class="tool-card">
+        <h3>Finding Yours — Three Questions</h3>
+        <ol>
+          <li>When have you felt most alive or most yourself?</li>
+          <li>What makes you angry about the world? (Often a clue to what you care about.)</li>
+          <li>If you could only keep three things — relationships, work, freedoms, aspects of yourself — what would they be?</li>
+        </ol>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about finding your values"><span class="arrow">▶</span> Why anger is a useful signal</button>
+        <div class="learn-more-content" aria-hidden="true">Anger points at violation — something that matters to you is being threatened, ignored, or blocked. That's why it's a reliable clue to values. If injustice makes you furious, justice matters to you. If people being dismissed makes you angry, dignity matters to you. This doesn't mean acting on the anger — it means using it as information about what's important. The same logic applies to grief: what you grieve losing tells you what you valued having.</div>
+      </div>
+
+      <div class="tool-card">
+        <h3>Values in Action</h3>
+        <p>Choose one value. Ask: <em>"What's the smallest action I could take today that moves me toward this?"</em></p>
+        <p style="margin-top:8px;font-size:0.82rem;color:var(--muted);">You're not deciding forever — just the next right direction.</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about Values in Action"><span class="arrow">▶</span> Why one value is more useful than many</button>
+        <div class="learn-more-content" aria-hidden="true">When you're overwhelmed, a list of values is just more things to weigh. One value functions as a compass — it reduces the decision to a single question: does this move me toward or away from what matters? Research on values-based action shows that even a brief connection to a genuine value before making a decision improves follow-through and reduces distress. The key word is genuine: a value borrowed from what you think you should care about doesn't carry the same weight as one you actually feel.</div>
+      </div>
+
+      <div class="outcome-check">
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:6px;">Even a small shift counts.</p>
+        <p id="oc-q-9">Did this help even a little?</p>
+        <button class="outcome-btn yes" aria-describedby="oc-q-9" onclick="logAndShow('yes','values','closure-values','fallback-values','esc-values')">Yes</button>
+        <button class="outcome-btn no" aria-describedby="oc-q-9" onclick="logAndShow('no','values','closure-values','fallback-values','esc-values')">Not quite</button>
+      </div>
+      <div class="closure-msg" id="closure-values">
+        <p>You connected with what actually matters — that's the compass.</p>
+        <p style="font-size:0.82rem;color:var(--muted);margin-top:6px;margin-bottom:12px;">What matters to you is your compass. It doesn't go away.</p>
+                <p style="font-size:0.82rem;color:var(--muted);margin-top:4px;margin-bottom:14px;font-style:normal;">If this helped, you don't have to hold it alone.</p>
+<button class="deeper-btn" onclick="go('deeper-values')">✦ Am I living this — or just performing it?</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+      <div class="fallback-msg" id="fallback-values">
+        <p>That's okay. Stay with me. Try this instead.</p>
+        <button class="fallback-link" onclick="go('identity')">Explore who you're becoming</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+      <div class="escalation-msg" id="esc-values">
+        <p>Feeling disconnected from your values for a long time is worth talking to someone about.</p>
+        <button class="esc-btn phone" onclick="window.location='tel:988'">📞 Call or text 988 — 24/7</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+
+      <button class="back-btn" onclick="go('growing')">← Back</button>
+    </div>
+
+    <!-- INNER VOICES -->
+    <div class="passage" id="inner-voices" role="group" aria-label="Understanding inner voices">
+      <p class="prompt">That critical voice in your head isn't the whole story. It's one narrator — with a particular perspective, shaped by specific experiences.</p>
+      <hr class="divi">
+      <p class="section-label">Who's Talking in There?</p>
+
+      <div class="tool-card">
+        <h3>Name the Voice</h3>
+        <p>Your stress or inner critic isn't you — it's a character passing through. Give it a name: <em>"The Inner Critic," "The Alarm Bell," "The Fence-Sitter," "The Backseat Driver from Hell."</em></p>
+        <p style="margin-top:8px;">What role does it play? What would you name it?</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about Naming the Voice"><span class="arrow">▶</span> Why this works</button>
+        <div class="learn-more-content" aria-hidden="true">By externalizing the voice, you create distance between you and the problem — making it easier to manage. The voice becomes something you can observe and question, rather than something you are.</div>
+      </div>
+
+      <div class="tool-card">
+        <h3>Question It</h3>
+        <p>Once you've named the voice, ask:</p>
+        <ul style="margin-top:8px;">
+          <li>Where did it learn to talk like that?</li>
+          <li>What is it trying to protect you from?</li>
+          <li>What would a more empowering narrator say instead?</li>
+        </ul>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about questioning inner voices"><span class="arrow">▶</span> Why asking where it came from matters</button>
+        <div class="learn-more-content" aria-hidden="true">Inner critics don't appear from nowhere — they're usually learned from specific environments, relationships, or experiences where that voice served a protective function. Asking "where did this learn to talk like that?" shifts it from being a fact about you to being a response that developed in a context. That's not the same as dismissing it. Often the inner critic was genuinely trying to protect you — from rejection, failure, or danger. Understanding its origin makes it easier to work with rather than against.</div>
+      </div>
+
+      <div class="tool-card">
+        <h3>Narrator Swap</h3>
+        <p>Imagine the same thought spoken by a wise friend, a calm therapist, or an older version of yourself who has been through hard things. How would they say it? What would they add?</p>
+        <p style="margin-top:8px;font-size:0.82rem;color:var(--muted);">These alternative narratives aren't less true — they're often more accurate, because they include context and compassion the critic leaves out.</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about Narrator Swap"><span class="arrow">▶</span> Why a different narrator is more accurate, not just kinder</button>
+        <div class="learn-more-content" aria-hidden="true">The inner critic presents itself as the objective voice — but it's one narrator with a particular perspective, shaped by specific experiences. It tends to omit context, minimize strengths, and overweight failures. A wise friend or your older self isn't being falsely positive — they're adding information the critic systematically leaves out. Alternative narratives work not because they're more comforting but because they're more complete. That's what makes them clinically meaningful, not just emotionally soothing.</div>
+      </div>
+
+      <div class="outcome-check">
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:6px;">Even a small shift counts.</p>
+        <p id="oc-q-10">Did this help even a little?</p>
+        <button class="outcome-btn yes" aria-describedby="oc-q-10" onclick="logAndShow('yes','inner-voices','closure-inner-voices','fallback-inner-voices','esc-inner-voices')">Yes</button>
+        <button class="outcome-btn no" aria-describedby="oc-q-10" onclick="logAndShow('no','inner-voices','closure-inner-voices','fallback-inner-voices','esc-inner-voices')">Not quite</button>
+      </div>
+      <div class="closure-msg" id="closure-inner-voices">
+        <p>You looked at the critic directly — most people look away.</p>
+        <p style="font-size:0.82rem;color:var(--muted);margin-top:6px;margin-bottom:12px;">Understanding the voice changes your relationship with it.</p>
+                <p style="font-size:0.82rem;color:var(--muted);margin-top:4px;margin-bottom:14px;font-style:normal;">If this helped, you don't have to hold it alone.</p>
+<button class="deeper-btn" onclick="go('deeper-inner-voices')">✦ Get to know this voice more fully</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+      <div class="fallback-msg" id="fallback-inner-voices">
+        <p>That's okay. Stay with me. Try this instead.</p>
+        <button class="fallback-link" onclick="go('self-talk')">Work with self-talk tools</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+      <div class="escalation-msg" id="esc-inner-voices">
+        <p>Persistent harsh inner voices sometimes need professional support to address.</p>
+        <button class="esc-btn phone" onclick="window.location='tel:988'">📞 Call or text 988 — 24/7</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+
+      <button class="back-btn" onclick="go('growing')">← Back</button>
+    </div>
+
+    <!-- CONTROL CHECK -->
+    <div class="passage" id="control-check" role="group" aria-label="Sorting what you can control">
+      <p class="prompt">Not everything that lands on your plate is yours to solve.</p>
+      <hr class="divi">
+      <p class="section-label">Spot What You Can Control</p>
+
+      <div class="tool-card">
+        <h3>Signs You CAN Influence This</h3>
+        <ul>
+          <li>You can personally take action that would change or improve it</li>
+          <li>Your thoughts, emotions, or behaviours directly impact the outcome</li>
+          <li>If you change your approach, the situation might improve</li>
+        </ul>
+      </div>
+
+      <div class="tool-card">
+        <h3>Signs This Is OUTSIDE Your Control</h3>
+        <ul>
+          <li>No matter what you do, the outcome stays the same</li>
+          <li>Other people's decisions, policies, or systems shape the outcome</li>
+          <li>You've tried multiple strategies, and nothing changes</li>
+        </ul>
+        <p style="margin-top:8px;font-size:0.82rem;color:var(--muted);">If it's outside your control — accepting this isn't giving up. It's putting your energy where it can actually do something.</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about acceptance vs giving up"><span class="arrow">▶</span> Acceptance isn't giving up — here's the difference</button>
+        <div class="learn-more-content" aria-hidden="true">Giving up means withdrawing care. Acceptance means stopping the fight against what can't be changed — so you have energy left for what can. Research consistently shows that accepting uncontrollable stressors lowers distress more effectively than continued attempts to change them. This is especially relevant when the stressor is systemic — housing insecurity, discrimination, chronic illness. You're not surrendering to it. You're refusing to let the battle against an unmovable wall exhaust everything you have.</div>
+      </div>
+
+      <div class="tool-card">
+        <h3>What Can You Actually Do Today?</h3>
+        <p>If you have influence: what's one small, concrete action you could take?<br>
+        If you don't: what grounding or acceptance tool can help you carry this without fighting it?</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about taking action"><span class="arrow">▶</span> Why small actions matter more than big ones</button>
+        <div class="learn-more-content" aria-hidden="true">Under high stress, the brain narrows its focus — options shrink, the problem feels monolithic, and any action that isn't a complete solution feels pointless. That's why big goals fail under distress and small actions don't. A small action doesn't need the problem to be solved first. It just needs to be doable right now. Over time, small actions compound. They also produce evidence that movement is possible, which counters the paralysis that chronic stress creates.</div>
+      </div>
+
+      <div class="outcome-check">
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:6px;">Even a small shift counts.</p>
+        <p id="oc-q-11">Did this help even a little?</p>
+        <button class="outcome-btn yes" aria-describedby="oc-q-11" onclick="logAndShow('yes','control-check','closure-control','fallback-control','esc-control')">Yes</button>
+        <button class="outcome-btn no" aria-describedby="oc-q-11" onclick="logAndShow('no','control-check','closure-control','fallback-control','esc-control')">Not quite</button>
+      </div>
+      <div class="closure-msg" id="closure-control">
+        <p>You sorted what's yours to carry — that changes how heavy it feels.</p>
+        <p style="font-size:0.82rem;color:var(--muted);margin-top:6px;margin-bottom:12px;">Knowing what's yours to carry makes it lighter.</p>
+                <p style="font-size:0.82rem;color:var(--muted);margin-top:4px;margin-bottom:14px;font-style:normal;">If this helped, you don't have to hold it alone.</p>
+<button class="deeper-btn" onclick="go('systemic')">✦ Is some of this bigger than you? Explore</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+      <div class="fallback-msg" id="fallback-control">
+        <p>That's okay. Stay with me. Try this instead.</p>
+        <button class="fallback-link" onclick="go('stuck')">Tools for feeling stuck</button>
+        <button class="fallback-link" onclick="go('values')">Reconnect with what matters</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+      <div class="escalation-msg" id="esc-control">
+        <p>Sometimes the load is too much for one person. Reaching out is wise.</p>
+        <button class="esc-btn phone" onclick="window.location='tel:988'">📞 Call or text 988 — 24/7</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+
+      <button class="back-btn" onclick="go('growing')">← Back</button>
+    </div>
+
+    <!-- IDENTITY -->
+    <div class="passage" id="identity" role="group" aria-label="Identity and growth">
+      <p class="prompt">Recovery and growth are not about going back to who you were. They're about choosing who you are becoming.</p>
+      <hr class="divi">
+      <p class="section-label">Identity & Reconstruction</p>
+
+      <div class="tool-card">
+        <h3>Survival Identities vs Chosen Identities</h3>
+        <p>Some identities formed to help you survive — <em>"the strong one who doesn't need anything," "the reliable one who never asks for help."</em> These were proof you became who you needed to be.</p>
+        <p style="margin-top:8px;">Recovery gives you room to choose differently. Not erasing who you were — adding back what got left out.</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about survival identities"><span class="arrow">▶</span> Why these identities formed — and why they stick</button>
+        <div class="learn-more-content" aria-hidden="true">Survival identities aren't weaknesses — they're adaptive responses to real environments. "The strong one who doesn't need anything" made sense in a situation where showing need was unsafe or ineffective. "The one who holds it together" worked when someone had to. The problem is that these roles are context-specific, but they tend to generalize. In recovery and growth, the old environment may no longer be present — but the identity persists because it worked, and the brain doesn't easily let go of what worked. Recognizing it as a response rather than a fixed truth is the first step to expanding it.</div>
+      </div>
+
+      <div class="tool-card">
+        <h3>Reconstruction Prompts</h3>
+        <ul>
+          <li>"One part of me I want to reconnect with is ___."</li>
+          <li>"One part of me that survived despite everything is ___."</li>
+          <li>"The person I'm building toward includes ___."</li>
+        </ul>
+        <p style="margin-top:8px;font-size:0.82rem;color:var(--muted);">You are not starting over. You are adding to your story with more intention.</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about reconstruction prompts"><span class="arrow">▶</span> Why these prompts work differently from affirmations</button>
+        <div class="learn-more-content" aria-hidden="true">Affirmations — "I am strong, I am worthy" — often fail because they make a claim the brain doesn't yet believe. These prompts work differently. They don't ask you to declare something. They ask you to notice and name specific things that are already true: a part of you that survived, a part you want to reconnect with. That's not a statement about who you are — it's evidence. Evidence accumulates in a way that declarations don't. The brain updates on concrete specifics much more readily than on general positive claims.</div>
+      </div>
+
+      <div class="anchor-quote">"It's never too late to be what you might have been."</div>
+
+      <div class="outcome-check">
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:6px;">Even a small shift counts.</p>
+        <p id="oc-q-12">Did this help even a little?</p>
+        <button class="outcome-btn yes" aria-describedby="oc-q-12" onclick="logAndShow('yes','identity','closure-identity','fallback-identity','esc-identity')">Yes</button>
+        <button class="outcome-btn no" aria-describedby="oc-q-12" onclick="logAndShow('no','identity','closure-identity','fallback-identity','esc-identity')">Not quite</button>
+      </div>
+      <div class="closure-msg" id="closure-identity">
+        <p>You stayed with uncertainty — that's where rebuilding begins.</p>
+        <p style="font-size:0.82rem;color:var(--muted);margin-top:6px;margin-bottom:12px;">The version of you building this — that's real.</p>
+                <p style="font-size:0.82rem;color:var(--muted);margin-top:4px;margin-bottom:14px;font-style:normal;">If this helped, you don't have to hold it alone.</p>
+<button class="deeper-btn" onclick="go('deeper-identity')">✦ Explore the versions of yourself</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+      <div class="fallback-msg" id="fallback-identity">
+        <p>That's okay. Stay with me. Try this instead.</p>
+        <button class="fallback-link" onclick="go('values')">Reconnect with what matters to you</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+      <div class="escalation-msg" id="esc-identity">
+        <p>Deep identity questions sometimes need to be explored with support.</p>
+        <button class="esc-btn phone" onclick="window.location='tel:988'">📞 Call or text 988 — 24/7</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+
+      <button class="back-btn" onclick="go('growing')">← Back</button>
+    </div>
+
+    <!-- SYSTEMIC -->
+    <div class="passage" id="systemic" role="group" aria-label="The bigger picture">
+      <p class="prompt">Not everything hard in your life is a personal failing. Some of it is the system.</p>
+      <hr class="divi">
+      <p class="section-label">It's Not Just You</p>
+
+      <div class="tool-card">
+        <h3>Seeing the Bigger Picture</h3>
+        <p>Stress doesn't only come from inside us. It also comes from housing insecurity, racism, poverty, ableism, workplace inequity, lack of access to services, and systems that weren't built for everyone.</p>
+        <p style="margin-top:8px;">When you internalize a system's failure as a personal flaw, you carry a weight that was never yours.</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about Systemic Context"><span class="arrow">▶</span> More</button>
+        <div class="learn-more-content" aria-hidden="true">Refusing to internalize a system's failure is an act of resistance. Naming the systemic context of your stress doesn't excuse you from the work of change — it gives you accurate information about what's actually going on, so you can direct your energy wisely.</div>
+      </div>
+
+      <div class="tool-card">
+        <h3>Sort What's Personal vs Systemic</h3>
+        <p>Which of your current challenges feel rooted in your habits, thoughts, or relationships? Which are shaped by external things — work demands, housing, policies, discrimination, access?</p>
+        <p style="margin-top:8px;">Are there areas where both overlap?</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about sorting personal vs systemic"><span class="arrow">▶</span> Why this distinction matters clinically</button>
+        <div class="learn-more-content" aria-hidden="true">When people internalize systemic problems as personal failures, they direct their energy at changing themselves instead of addressing what's actually driving the distress. This is especially common among people experiencing poverty, racism, housing instability, or chronic health conditions — stressors that are real and structural, not personal deficiencies. Making the distinction doesn't remove responsibility where it genuinely exists. It ensures the work you do is aimed at the right target.</div>
+      </div>
+
+      <div class="tool-card">
+        <h3>When the System Is the Problem — Your Role Looks Different</h3>
+        <p>What boundary needs to be set? Who can support you? What action protects your values and your wellbeing without requiring you to fix something that isn't yours to fix?</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about when the system is the problem"><span class="arrow">▶</span> Why resistance can be the right clinical response</button>
+        <div class="learn-more-content" aria-hidden="true">In clinical practice, helping someone "cope better" with a genuinely unjust or harmful situation can inadvertently reinforce the idea that the problem is theirs to manage. When the stressor is structural — discrimination, poverty, a dehumanizing system — the right clinical move is sometimes naming that the system has failed, setting a boundary against internalising it, and identifying what action protects the person's values and wellbeing. Refusing to carry what isn't yours is an act of self-respect, not passivity.</div>
+      </div>
+
+      <div class="outcome-check">
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:6px;">Even a small shift counts.</p>
+        <p id="oc-q-13">Did this help even a little?</p>
+        <button class="outcome-btn yes" aria-describedby="oc-q-13" onclick="logAndShow('yes','systemic','closure-systemic','fallback-systemic','esc-systemic')">Yes</button>
+        <button class="outcome-btn no" aria-describedby="oc-q-13" onclick="logAndShow('no','systemic','closure-systemic','fallback-systemic','esc-systemic')">Not quite</button>
+      </div>
+      <div class="closure-msg" id="closure-systemic">
+        <p>You named something real — the load was never entirely yours.</p>
+        <p style="font-size:0.82rem;color:var(--muted);margin-top:6px;margin-bottom:12px;">Not everything hard is yours to fix. That's worth holding.</p>
+                <p style="font-size:0.82rem;color:var(--muted);margin-top:4px;margin-bottom:14px;font-style:normal;">If this helped, you don't have to hold it alone.</p>
+<button class="deeper-btn" onclick="go('deeper-systemic')">✦ Name where it came from more fully</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+      <div class="fallback-msg" id="fallback-systemic">
+        <p>That's okay. Stay with me. Try this instead.</p>
+        <button class="fallback-link" onclick="go('alone')">Find community support</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+      <div class="escalation-msg" id="esc-systemic">
+        <p>Systemic stress can be overwhelming. Support is available.</p>
+        <button class="esc-btn" onclick="window.open('https://connexontario.ca','_blank')">ConnexOntario — Find local services</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+
+      <button class="back-btn" onclick="go('growing')">← Back</button>
+    </div>
+
+    <!-- ═══ DEEPER DIVE PASSAGES ═══ -->
+
+    <!-- DEEPER: OVERWHELMED -->
+    <div class="passage" id="deeper-overwhelmed" role="group" aria-label="Deeper reflection on overwhelm">
+      <p class="prompt">Let's look at what's underneath the overwhelm.</p>
+      <p class="sub-prompt">These prompts are for when you have a little more space — not when you're flooded.</p>
+      <hr class="divi">
+
+      <div class="tool-card">
+        <h3>Step 1 — Name What's Really Going On</h3>
+        <p>State it simply, without judgment. Not the whole story — just the core of it.</p>
+        <ul style="margin-top:8px;">
+          <li>What is the exact issue, as best you can name it?</li>
+          <li>How does this situation make you feel?</li>
+          <li>What's the hardest part right now?</li>
+        </ul>
+        <p style="margin-top:8px;font-size:0.82rem;color:var(--muted);">Write it badly if you need to. Write it just for you. Clarity comes later. Trying is enough.</p>
+      </div>
+
+      <div class="tool-card">
+        <h3>Step 2 — What's Yours to Carry?</h3>
+        <p>Not everything in the fog is yours. Which parts of this feel personal — rooted in your habits or choices? Which are coming from outside — other people, systems, situations you didn't create?</p>
+      </div>
+
+      <div class="tool-card">
+        <h3>Step 3 — What Would Help Most Right Now?</h3>
+        <p>Not a solution. Just the next right direction. What's one small thing — internal or external — that would make this even slightly more manageable?</p>
+      </div>
+
+      <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border);">
+        <p style="font-family:'Fraunces',serif;font-style:italic;font-size:0.95rem;color:var(--accent);line-height:1.6;margin-bottom:8px;">You looked at what's in the fog instead of just running from it.</p>
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:10px;">You don't have to figure anything else out right now.</p>
+        <button class="deeper-btn" onclick="go('message-bottle')">✦ Worth holding onto something from this?</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+        <button class="back-btn" onclick="go('overwhelmed')" style="margin-left:8px;">← Back to tools</button>
+      </div>
+    </div>
+
+    <!-- DEEPER: EMOTIONS -->
+    <div class="passage" id="deeper-emotions" role="group" aria-label="Deeper work with emotions">
+      <p class="prompt">Emotions are signals, not problems. Let's look at what yours might be saying.</p>
+      <hr class="divi">
+
+      <div class="tool-card">
+        <h3>What's the Emotion Underneath?</h3>
+        <p>What you feel on the surface is often a secondary emotion — anger, irritability, numbness. Underneath is usually a primary feeling: hurt, fear, shame, grief.</p>
+        <p style="margin-top:8px;">Ask: <em>"If I weren't angry right now, what would I be feeling?"</em> That's usually where the real need lives.</p>
+      </div>
+
+      <div class="tool-card">
+        <h3>Emotion → Need → Expression</h3>
+        <p>Every emotion points to a need. Try:</p>
+        <ul style="margin-top:8px;">
+          <li><em>"I feel ___ → I need ___ → I can express it by ___."</em></li>
+          <li>Example: "I feel lonely → I need connection → I can reach out to one person."</li>
+        </ul>
+        <p style="margin-top:8px;font-size:0.82rem;color:var(--muted);">Naming the need — not just the feeling — is one of the most powerful skills you can build.</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about Emotion to Need to Expression"><span class="arrow">▶</span> Why naming the need changes the conversation</button>
+        <div class="learn-more-content" aria-hidden="true">Most emotional communication stops at the feeling — "I'm angry," "I'm hurt" — which leaves others with no clear path to respond. Naming the underlying need gives the other person something they can actually act on. It also changes the communication from an accusation to information. When you say "I need support" instead of "you never help," you're harder to argue with and easier to respond to. In recovery and mental health, many people have spent years suppressing or hiding needs entirely — learning to name them directly is a genuine skill that takes practice.</div>
+      </div>
+
+      <div class="tool-card">
+        <h3>Rewrite the Myth</h3>
+        <p>Which of these feel familiar?</p>
+        <ul style="margin-top:8px;">
+          <li>"There's a right way to feel in every situation." → Emotions are responses, not grades.</li>
+          <li>"Being emotional means being out of control." → Feeling deeply and responding wisely are not opposites.</li>
+          <li>"Painful emotions should be ignored." → Ignored emotions don't disappear. They build pressure.</li>
+        </ul>
+      </div>
+
+      <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border);">
+        <p style="font-family:'Fraunces',serif;font-style:italic;font-size:0.95rem;color:var(--accent);line-height:1.6;margin-bottom:8px;">You stayed with something difficult long enough to understand it better.</p>
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:10px;">You don't have to figure anything else out right now.</p>
+        <button class="deeper-btn" onclick="go('message-bottle')">✦ Worth holding onto something from this?</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+        <button class="back-btn" onclick="go('emotions')" style="margin-left:8px;">← Back to tools</button>
+      </div>
+    </div>
+
+<!-- DEEPER PASSAGES BLOCK - to be inserted before tools-index -->
+
+    <!-- DEEPER: DISTORTIONS -->
+    <div class="passage" id="deeper-distortions" role="group" aria-label="Decoding a thought pattern">
+      <p class="prompt">Let's look at one thought more carefully.</p>
+      <p class="sub-prompt">These prompts are for when you have a little more space — not when you're flooded.</p>
+      <hr class="divi">
+
+      <div class="tool-card">
+        <h3>The Thought Distortion Decoder</h3>
+        <p>Pick the pattern that sounds most like what showed up for you:</p>
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px;">
+          <div style="padding:10px 14px;background:var(--fog);border-radius:10px;border:1px solid var(--border);">
+            <p style="font-size:0.875rem;font-weight:500;color:var(--accent);">All-or-nothing thinking</p>
+            <p style="font-size:0.82rem;color:var(--muted);margin-top:2px;">"If I mess this up, I've failed completely."<br><em>Trying to:</em> Avoid gray areas. <em>Try instead:</em> "It's allowed to be imperfect and still count."</p>
+          </div>
+          <div style="padding:10px 14px;background:var(--fog);border-radius:10px;border:1px solid var(--border);">
+            <p style="font-size:0.875rem;font-weight:500;color:var(--accent);">Catastrophizing</p>
+            <p style="font-size:0.82rem;color:var(--muted);margin-top:2px;">"This is going to ruin everything."<br><em>Trying to:</em> Prepare for disaster. <em>Try instead:</em> "Hard? Yes. End of the world? Not quite."</p>
+          </div>
+          <div style="padding:10px 14px;background:var(--fog);border-radius:10px;border:1px solid var(--border);">
+            <p style="font-size:0.875rem;font-weight:500;color:var(--accent);">Should statements</p>
+            <p style="font-size:0.82rem;color:var(--muted);margin-top:2px;">"I should be over this by now."<br><em>Trying to:</em> Maintain control. <em>Try instead:</em> "It's taking the time it takes."</p>
+          </div>
+          <div style="padding:10px 14px;background:var(--fog);border-radius:10px;border:1px solid var(--border);">
+            <p style="font-size:0.875rem;font-weight:500;color:var(--accent);">Labelling</p>
+            <p style="font-size:0.82rem;color:var(--muted);margin-top:2px;">"I'm just a failure."<br><em>Trying to:</em> Simplify pain. <em>Try instead:</em> "I'm struggling with something. That doesn't define me."</p>
+          </div>
+          <div style="padding:10px 14px;background:var(--fog);border-radius:10px;border:1px solid var(--border);">
+            <p style="font-size:0.875rem;font-weight:500;color:var(--accent);">Mind reading</p>
+            <p style="font-size:0.82rem;color:var(--muted);margin-top:2px;">"They think I'm annoying."<br><em>Trying to:</em> Avoid rejection by predicting it. <em>Try instead:</em> "I can't know that — unless I ask."</p>
+          </div>
+          <div style="padding:10px 14px;background:var(--fog);border-radius:10px;border:1px solid var(--border);">
+            <p style="font-size:0.875rem;font-weight:500;color:var(--accent);">Emotional reasoning</p>
+            <p style="font-size:0.82rem;color:var(--muted);margin-top:2px;">"I feel like a failure, so I must be."<br><em>Trying to:</em> Trust internal signals. <em>Try instead:</em> "Feeling it doesn't make it true."</p>
+          </div>
+          <div style="padding:10px 14px;background:var(--fog);border-radius:10px;border:1px solid var(--border);">
+            <p style="font-size:0.875rem;font-weight:500;color:var(--accent);">Personalization</p>
+            <p style="font-size:0.82rem;color:var(--muted);margin-top:2px;">"This is my fault."<br><em>Trying to:</em> Maintain a sense of control. <em>Try instead:</em> "What actually caused this — and how much of it was mine?"</p>
+          </div>
+          <div style="padding:10px 14px;background:var(--fog);border-radius:10px;border:1px solid var(--border);">
+            <p style="font-size:0.875rem;font-weight:500;color:var(--accent);">Filtering</p>
+            <p style="font-size:0.82rem;color:var(--muted);margin-top:2px;">"Everything went wrong."<br><em>Trying to:</em> Protect against future disappointment. <em>Try instead:</em> "What actually went wrong — and what didn't?"</p>
+          </div>
+          <div style="padding:10px 14px;background:var(--fog);border-radius:10px;border:1px solid var(--border);">
+            <p style="font-size:0.875rem;font-weight:500;color:var(--accent);">Fortune telling</p>
+            <p style="font-size:0.82rem;color:var(--muted);margin-top:2px;">"I know it's going to go badly."<br><em>Trying to:</em> Prepare for failure before it happens. <em>Try instead:</em> "That's a prediction, not a fact. What's the actual evidence?"</p>
+          </div>
+          <div style="padding:10px 14px;background:var(--fog);border-radius:10px;border:1px solid var(--border);">
+            <p style="font-size:0.875rem;font-weight:500;color:var(--accent);">Overgeneralising</p>
+            <p style="font-size:0.82rem;color:var(--muted);margin-top:2px;">"Nothing ever works out for me."<br><em>Trying to:</em> Make sense of repeated pain. <em>Try instead:</em> "This happened. That doesn't mean it always happens."</p>
+          </div>
+          <div style="padding:10px 14px;background:var(--fog);border-radius:10px;border:1px solid var(--border);">
+            <p style="font-size:0.875rem;font-weight:500;color:var(--accent);">Magnifying / minimising</p>
+            <p style="font-size:0.82rem;color:var(--muted);margin-top:2px;">"That mistake ruined everything" / "The good parts don't really count."<br><em>Trying to:</em> Protect against being caught off guard. <em>Try instead:</em> "What's the actual size of this, honestly?"</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <h3>Talk Back to the Thought</h3>
+        <ol style="font-size:0.9rem;line-height:1.8;padding-left:18px;">
+          <li>Write the thought exactly as it showed up</li>
+          <li>Name the distortion (from above)</li>
+          <li>What might a more balanced version sound like?</li>
+          <li>Did anything shift — even slightly?</li>
+        </ol>
+        <p style="font-size:0.82rem;color:var(--muted);margin-top:8px;">You don't have to believe the reframe yet. Just notice the gap between the thought and the more flexible version.</p>
+      </div>
+
+      <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border);">
+        <p style="font-family:'Fraunces',serif;font-style:italic;font-size:0.95rem;color:var(--accent);line-height:1.6;margin-bottom:8px;">You sat with a thought instead of just being pulled by it.</p>
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:10px;">You don't have to figure anything else out right now.</p>
+        <button class="deeper-btn" onclick="go('message-bottle')">✦ Worth holding onto something from this?</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+        <button class="back-btn" onclick="go('distortions')" style="margin-left:8px;">← Back to tools</button>
+      </div>
+    </div>
+
+    <!-- DEEPER: VALUES -->
+    <div class="passage" id="deeper-values" role="group" aria-label="Living your values">
+      <p class="prompt">Living a value and performing one are different things.</p>
+      <p class="sub-prompt">This is for when you have space to look more closely.</p>
+      <hr class="divi">
+
+      <div class="tool-card">
+        <h3>Am I Living This — or Just Performing It?</h3>
+        <p>For each value that matters to you, ask yourself which column feels more honest right now:</p>
+        <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:0.78rem;text-align:center;">
+          <div style="padding:8px;background:rgba(45,90,107,0.12);border-radius:8px;font-weight:600;color:var(--accent);">Living it on purpose</div>
+          <div style="padding:8px;background:rgba(196,130,74,0.1);border-radius:8px;font-weight:600;color:var(--accent2);">Living it by accident</div>
+          <div style="padding:8px;background:var(--fog);border-radius:8px;font-weight:600;color:var(--muted);">Not living it yet</div>
+        </div>
+        <p style="font-size:0.82rem;color:var(--muted);margin-top:10px;">This is a map, not a moral scorecard. No wrong answers.</p>
+      </div>
+
+      <div class="tool-card">
+        <h3>Prompts to Go Deeper</h3>
+        <ul style="font-size:0.875rem;line-height:1.9;padding-left:18px;">
+          <li>What value do I act on — even when no one sees it?</li>
+          <li>What value do I keep betraying, even though I hate how that feels?</li>
+          <li>What have I stopped claiming because I didn't feel worthy of it?</li>
+          <li>If I could only carry three values right now — what would they be?</li>
+        </ul>
+      </div>
+
+      <div class="tool-card">
+        <h3>Values Are Direction, Not Destination</h3>
+        <p>You don't have to embody them fully. You just have to start noticing them. What's one small move today that leans toward a value you want to live more fully?</p>
+      </div>
+
+      <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border);">
+        <p style="font-family:'Fraunces',serif;font-style:italic;font-size:0.95rem;color:var(--accent);line-height:1.6;margin-bottom:8px;">You know what matters. That's the compass.</p>
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:10px;">You don't have to figure anything else out right now.</p>
+        <button class="deeper-btn" onclick="go('message-bottle')">✦ You might want to keep this somewhere.</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+        <button class="back-btn" onclick="go('values')" style="margin-left:8px;">← Back to tools</button>
+      </div>
+    </div>
+
+    <!-- DEEPER: INNER VOICES -->
+    <div class="passage" id="deeper-inner-voices" role="group" aria-label="Knowing your inner voices">
+      <p class="prompt">Let's get to know this voice more fully.</p>
+      <p class="sub-prompt">Naming the noise is how you stop letting it steer.</p>
+      <hr class="divi">
+
+      <div class="tool-card">
+        <h3>Step 1 — What's the Vibe?</h3>
+        <p>When this voice shows up, how does it feel? Check what fits:</p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
+          <span style="padding:4px 10px;background:var(--fog);border-radius:20px;font-size:0.82rem;border:1px solid var(--border);">Loud and anxious</span>
+          <span style="padding:4px 10px;background:var(--fog);border-radius:20px;font-size:0.82rem;border:1px solid var(--border);">Shamey or judgmental</span>
+          <span style="padding:4px 10px;background:var(--fog);border-radius:20px;font-size:0.82rem;border:1px solid var(--border);">Frozen or avoidant</span>
+          <span style="padding:4px 10px;background:var(--fog);border-radius:20px;font-size:0.82rem;border:1px solid var(--border);">Pushy or perfectionistic</span>
+          <span style="padding:4px 10px;background:var(--fog);border-radius:20px;font-size:0.82rem;border:1px solid var(--border);">Numb or checked out</span>
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <h3>Step 2 — What Does It Say?</h3>
+        <p style="font-size:0.875rem;line-height:1.9;">Fill in the blank that fits:</p>
+        <ul style="font-size:0.875rem;line-height:1.9;padding-left:18px;margin-top:4px;">
+          <li>"You better ___ or else."</li>
+          <li>"You're not ___ enough."</li>
+          <li>"What if ___ happens?"</li>
+          <li>"You always ___."</li>
+          <li>"You can't trust ___."</li>
+        </ul>
+      </div>
+
+      <div class="tool-card">
+        <h3>Step 3 — What's Its Job?</h3>
+        <p>Even if it sucks, this part of you probably has a job. What is it trying to do?</p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
+          <span style="padding:4px 10px;background:var(--fog);border-radius:20px;font-size:0.82rem;border:1px solid var(--border);">Protect you</span>
+          <span style="padding:4px 10px;background:var(--fog);border-radius:20px;font-size:0.82rem;border:1px solid var(--border);">Keep you from mistakes</span>
+          <span style="padding:4px 10px;background:var(--fog);border-radius:20px;font-size:0.82rem;border:1px solid var(--border);">Keep you from getting too close</span>
+          <span style="padding:4px 10px;background:var(--fog);border-radius:20px;font-size:0.82rem;border:1px solid var(--border);">Warn you about danger</span>
+          <span style="padding:4px 10px;background:var(--fog);border-radius:20px;font-size:0.82rem;border:1px solid var(--border);">Push you to succeed</span>
+        </div>
+        <p style="font-size:0.82rem;color:var(--muted);margin-top:8px;">Sometimes the job is outdated. That's okay. You get to decide if it's still useful.</p>
+      </div>
+
+      <div class="tool-card">
+        <h3>Step 4 — Give It a Name</h3>
+        <p>What would you call this part? The Inner Critic. The Alarm Bell. The Fence Sitter. The Backseat Driver from Hell.</p>
+        <p style="margin-top:8px;font-size:0.82rem;color:var(--muted);">Your character might be a cartoon possum with a clipboard. That's valid. There are no wrong answers.</p>
+      </div>
+
+      <div class="tool-card">
+        <h3>Step 5 — How Do You Want to Respond?</h3>
+        <ul style="font-size:0.875rem;line-height:1.9;padding-left:18px;">
+          <li>What would you like to say back to this part?</li>
+          <li>What limits would you set with it?</li>
+          <li>Can you thank it for trying to help — without letting it steer?</li>
+          <li>What does it actually need, as opposed to what it wants?</li>
+        </ul>
+      </div>
+
+      <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border);">
+        <p style="font-family:'Fraunces',serif;font-style:italic;font-size:0.95rem;color:var(--accent);line-height:1.6;margin-bottom:8px;">You looked at the critic directly and asked where it came from.</p>
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:10px;">You don't have to figure anything else out right now.</p>
+        <button class="deeper-btn" onclick="go('message-bottle')">✦ Leave something for the next time this voice shows up.</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+        <button class="back-btn" onclick="go('inner-voices')" style="margin-left:8px;">← Back to tools</button>
+      </div>
+    </div>
+
+    <!-- DEEPER: IDENTITY -->
+    <div class="passage" id="deeper-identity" role="group" aria-label="Exploring versions of yourself">
+      <p class="prompt">Different versions of you have taken the lead at different times.</p>
+      <p class="sub-prompt">Each one got you through something. This is about recognizing them.</p>
+      <hr class="divi">
+
+      <div class="tool-card">
+        <h3>The Versions of You</h3>
+        <p>Monarch butterflies don't make the journey from Canada to Mexico in one go. It takes four generations. One starts the flight. The next keeps going. Each one carries the instinct — even if they've never seen the destination.</p>
+        <p style="margin-top:8px;">We're like that too. The version that learned how to cope. The one that hid to stay safe. The one that dared to hope again. Each part got us through something.</p>
+      </div>
+
+      <div class="tool-card">
+        <h3>Name the Versions</h3>
+        <ul style="font-size:0.875rem;line-height:1.9;padding-left:18px;">
+          <li>Which version of you showed up most in this season of your life?</li>
+          <li>Which version are you becoming?</li>
+          <li>What did the version that was just surviving need — that you can now offer yourself?</li>
+          <li>What would you want to say to the version of you that was hardest on yourself?</li>
+        </ul>
+      </div>
+
+      <div class="tool-card">
+        <h3>Reconstruction Prompts</h3>
+        <ul style="font-size:0.875rem;line-height:1.9;padding-left:18px;">
+          <li>"One part of me I want to reconnect with is ___."</li>
+          <li>"One part of me that survived despite everything is ___."</li>
+          <li>"The person I'm building toward includes ___."</li>
+          <li>"What truth am I starting to believe?"</li>
+        </ul>
+        <p style="margin-top:8px;font-size:0.82rem;color:var(--muted);">You are not starting over. You are adding to your story with more intention.</p>
+      </div>
+
+      <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border);">
+        <p style="font-family:'Fraunces',serif;font-style:italic;font-size:0.95rem;color:var(--accent);line-height:1.6;margin-bottom:8px;">The version of you that showed up today already knows something.</p>
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:10px;">You don't have to figure anything else out right now.</p>
+        <button class="deeper-btn" onclick="go('message-bottle')" style="margin-bottom:8px;">✦ Leave a message for the version of you that needs this later.</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+        <button class="back-btn" onclick="go('identity')" style="margin-left:8px;">← Back to tools</button>
+      </div>
+    </div>
+
+    <!-- DEEPER: SYSTEMIC -->
+    <div class="passage" id="deeper-systemic" role="group" aria-label="Naming systemic sources">
+      <p class="prompt">Some of what you're carrying has a source outside of you.</p>
+      <p class="sub-prompt">Naming it changes how you hold it.</p>
+      <hr class="divi">
+
+      <div class="tool-card">
+        <h3>What Are You Carrying That Might Not Belong to You Alone?</h3>
+        <p>Check what fits — or write your own:</p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
+          <span style="padding:4px 10px;background:var(--fog);border-radius:20px;font-size:0.82rem;border:1px solid var(--border);">Generational pressure</span>
+          <span style="padding:4px 10px;background:var(--fog);border-radius:20px;font-size:0.82rem;border:1px solid var(--border);">Racial injustice</span>
+          <span style="padding:4px 10px;background:var(--fog);border-radius:20px;font-size:0.82rem;border:1px solid var(--border);">Gendered expectations</span>
+          <span style="padding:4px 10px;background:var(--fog);border-radius:20px;font-size:0.82rem;border:1px solid var(--border);">Poverty or class shame</span>
+          <span style="padding:4px 10px;background:var(--fog);border-radius:20px;font-size:0.82rem;border:1px solid var(--border);">Ableism</span>
+          <span style="padding:4px 10px;background:var(--fog);border-radius:20px;font-size:0.82rem;border:1px solid var(--border);">Queer/transphobia</span>
+          <span style="padding:4px 10px;background:var(--fog);border-radius:20px;font-size:0.82rem;border:1px solid var(--border);">Burnout from unpaid care</span>
+          <span style="padding:4px 10px;background:var(--fog);border-radius:20px;font-size:0.82rem;border:1px solid var(--border);">Medical trauma</span>
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <h3>Challenge the Inherited Message</h3>
+        <ul style="font-size:0.875rem;line-height:1.9;padding-left:18px;">
+          <li>What's the message you've been taught to believe about this pain?</li>
+          <li>Are you internalizing a problem that's actually structural?</li>
+          <li>Who benefits when you believe the issue is just your fault?</li>
+          <li>If the system were built for care and fairness — what would be different?</li>
+        </ul>
+      </div>
+
+      <div class="tool-card">
+        <h3>Reclaim the Truth You Want to Tell</h3>
+        <p>Rewriting doesn't have to be neat. It just has to be yours. What's one thing you want to say back to the narrative you've been handed?</p>
+        <p style="margin-top:8px;font-size:0.82rem;color:var(--muted);">A single word. A protest. A line of resistance. Whatever is honest.</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about reclaiming your narrative"><span class="arrow">▶</span> Why this matters clinically</button>
+        <div class="learn-more-content" aria-hidden="true">Systems gain power when we internalize them. When a dominant narrative — "you're not trying hard enough," "this is just how it is" — gets absorbed as personal truth, the pain stays directed inward. Naming the source and speaking back to it doesn't erase the structural reality. But it interrupts the process by which a system's failure becomes a person's shame. That interruption is clinically significant.</div>
+      </div>
+
+      <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border);">
+        <p style="font-family:'Fraunces',serif;font-style:italic;font-size:0.95rem;color:var(--accent);line-height:1.6;margin-bottom:8px;">Not everything hard is yours to fix. You just proved you know the difference.</p>
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:10px;">You don't have to figure anything else out right now.</p>
+        <button class="deeper-btn" onclick="go('message-bottle')">✦ Write it down before it slips away.</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+        <button class="back-btn" onclick="go('systemic')" style="margin-left:8px;">← Back to tools</button>
+      </div>
+    </div>
+
+    <!-- MESSAGE IN A BOTTLE -->
+    <div class="passage" id="message-bottle" role="group" aria-label="A note to future you">
+      <p class="prompt" style="font-family:'Fraunces',serif;">A note to future you.</p>
+      <p class="sub-prompt">From the version of you that showed up today.</p>
+      <hr class="divi">
+
+      <!-- SESSION SUMMARY BLOCK -->
+      <div id="session-summary-block" style="display:none;margin-bottom:20px;padding:14px 16px;background:rgba(45,90,107,0.07);border-radius:12px;border:1px solid rgba(45,90,107,0.2);">
+        <p style="font-size:0.72rem;font-weight:600;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">What you worked on today</p>
+        <p id="session-summary-text" style="font-size:0.875rem;color:var(--text);line-height:1.7;"></p>
+      </div>
+
+      <!-- THREE MICRO-PROMPTS -->
+      <div style="margin-bottom:20px;">
+        <p style="font-size:0.72rem;font-weight:600;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;">What I noticed — optional</p>
+
+        <div style="margin-bottom:10px;">
+          <label for="bottle-shift" style="font-size:0.82rem;color:var(--muted);display:block;margin-bottom:4px;">Something that shifted, even slightly:</label>
+          <input type="text" id="bottle-shift" placeholder="a word or phrase is enough"
+            style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.875rem;background:var(--card);color:var(--text);outline:none;box-sizing:border-box;"
+            onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+        </div>
+
+        <div style="margin-bottom:10px;">
+          <label for="bottle-helped" style="font-size:0.82rem;color:var(--muted);display:block;margin-bottom:4px;">What helped:</label>
+          <input type="text" id="bottle-helped" placeholder="a tool, a phrase, a moment"
+            style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.875rem;background:var(--card);color:var(--text);outline:none;box-sizing:border-box;"
+            onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+        </div>
+
+        <div>
+          <label for="bottle-remember" style="font-size:0.82rem;color:var(--muted);display:block;margin-bottom:4px;">One thing I want to remember:</label>
+          <input type="text" id="bottle-remember" placeholder="something true, something worth keeping"
+            style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.875rem;background:var(--card);color:var(--text);outline:none;box-sizing:border-box;"
+            onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+        </div>
+      </div>
+
+      <!-- LETTER SPACE -->
+      <div>
+        <label for="bottle-letter" style="font-size:0.72rem;font-weight:600;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;display:block;margin-bottom:6px;">My letter to future me</label>
+        <p style="font-size:0.82rem;color:var(--muted);margin-bottom:10px;line-height:1.6;">Write to the version of you that might need this light again. Maybe it's you in a week. Maybe it's you months from now. You don't have to sound wise. Just be honest.</p>
+        <textarea id="bottle-letter" rows="8" placeholder="You don't have to finish every sentence. Just start somewhere."
+          style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.875rem;line-height:1.7;background:var(--card);color:var(--text);outline:none;resize:vertical;box-sizing:border-box;"
+          onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+      </div>
+
+      <!-- EXPORT BUTTONS -->
+      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+        <button id="copy-bottle-btn" onclick="copyBottle()"
+          style="flex:1;min-width:140px;padding:11px 16px;background:var(--accent);color:white;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.875rem;font-weight:500;cursor:pointer;">
+          📋 Copy to clipboard
+        </button>
+        <button onclick="downloadBottle()"
+          style="flex:1;min-width:140px;padding:11px 16px;background:none;border:1.5px solid var(--accent);color:var(--accent);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.875rem;font-weight:500;cursor:pointer;">
+          ⬇ Download as .txt
+        </button>
+      </div>
+
+      <p style="font-size:0.78rem;color:var(--muted);margin-top:10px;line-height:1.55;">Your letter is never saved anywhere — it exists only while this tab is open. Usage patterns (what helped) are stored on your device only and never sent anywhere.</p>
+
+      <hr class="divi">
+      <p class="anchor-quote">"This wasn't meant to change your life. It was meant to meet you where you were — to name what's going on, find a bit of direction, and maybe catch your breath."</p>
+
+      <button class="restart-btn" onclick="go('triage')" style="margin-top:16px;">↩ Return to start</button>
+    </div>
+
+
+    <!-- TOOLS INDEX -->
+
+    <!-- URGES -->
+    <div class="passage" id="urges" role="group" aria-label="I feel pulled toward something">
+      <div style="padding:18px 0 20px 0;">
+        <p style="font-size:1.15rem;font-weight:500;color:var(--accent);line-height:1.6;margin-bottom:4px;">Hold still for a moment.</p>
+        <p style="font-size:1.15rem;font-weight:500;color:var(--accent);line-height:1.6;margin-bottom:12px;">Don't act yet. Notice where you feel this in your body.</p>
+        <p style="font-size:0.85rem;color:var(--muted);">This feeling will peak and pass. You just need to outlast it.</p>
+      </div>
+      <hr class="divi">
+      <p class="section-label">Start here:</p>
+
+      <div class="tool-card">
+        <h3>Ride It Out</h3>
+        <p>This feeling rises, peaks, and falls on its own — usually within 10–20 minutes if you don't act on it. You don't have to make it disappear. You just have to stay with it a little longer.</p>
+        <ul style="margin-top:8px;">
+          <li>Name what you feel pulled toward — just to yourself, not out loud</li>
+          <li>Notice where it sits in your body — heat, tension, restlessness</li>
+          <li>Breathe out slowly. Keep noticing. Don't engage with it.</li>
+        </ul>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about riding out urges"><span class="arrow">▶</span> Why this works</button>
+        <div class="learn-more-content" aria-hidden="true">Every time you stay with a strong urge without acting on it, you're demonstrating to yourself that it's survivable. The urge itself doesn't get weaker immediately — but your relationship to it changes. You're no longer someone who acts automatically. You're someone who can wait. That's not small.</div>
+      </div>
+
+      <p class="section-label" style="margin-top:18px;">Or try something else:</p>
+
+      <div class="tool-card">
+        <h3>Check the Basics First</h3>
+        <p>Strong urges often attach to unmet needs. Before anything else: are you <strong>hungry, angry, lonely, or tired?</strong> Address the underlying need and the pull often softens.</p>
+        <button class="learn-more-btn" onclick="toggleLearn(this)" aria-expanded="false" aria-label="Learn more about checking basics"><span class="arrow">▶</span> Why this matters</button>
+        <div class="learn-more-content" aria-hidden="true">Urges don't appear from nowhere — they attach to states the body is already in. Hunger, exhaustion, isolation, and accumulated stress all lower your threshold for acting on impulse. Addressing the actual unmet need is often more effective than trying to fight the urge directly.</div>
+      </div>
+
+      <div class="tool-card">
+        <h3>Buy Yourself 10 Minutes</h3>
+        <p>You don't have to decide never. You just have to wait 10 minutes. Do something physical — walk, drink cold water, change rooms. Not to fix the feeling. Just to create space between the urge and the action.</p>
+        <p style="margin-top:8px;font-size:0.82rem;color:var(--muted);">If the urge is still there in 10 minutes, you can decide then. Most of the time, the intensity drops.</p>
+      </div>
+
+      <div class="anchor-quote">"You don't have to act on everything you feel."</div>
+
+      <div class="outcome-check">
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:6px;">Even a small shift counts.</p>
+        <p id="oc-q-urges">Did this help even a little?</p>
+        <button class="outcome-btn yes" aria-describedby="oc-q-urges" onclick="logAndShow('yes','urges','closure-urges','fallback-urges','esc-urges')">Yes</button>
+        <button class="outcome-btn no" aria-describedby="oc-q-urges" onclick="logAndShow('no','urges','closure-urges','fallback-urges','esc-urges')">Not quite</button>
+      </div>
+
+      <div class="closure-msg" id="closure-urges">
+        <p>You stayed with it instead of acting on it.</p>
+        <p style="font-size:0.82rem;color:var(--muted);margin-top:6px;margin-bottom:12px;">That space between the feeling and the action — that's yours.</p>
+                <p style="font-size:0.82rem;color:var(--muted);margin-top:4px;margin-bottom:14px;font-style:normal;">If this helped, you don't have to hold it alone.</p>
+<button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+
+      <div class="fallback-msg" id="fallback-urges">
+        <p>That's okay. Stay with me. Try this instead.</p>
+        <button class="fallback-link" onclick="go('body')" style="font-weight:500;border-color:var(--accent);">Settle your body first</button>
+        <button class="fallback-link" onclick="go('alone')" style="margin-top:4px;opacity:0.8;">Talk to someone</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+
+      <div class="escalation-msg" id="esc-urges">
+        <p>If this feeling is becoming unsafe, please reach out now.</p>
+        <button class="esc-btn phone" onclick="window.location='tel:988'">📞 Call or text 988 — 24/7</button>
+        <button class="restart-btn" onclick="go('triage')">↩ Return to start</button>
+      </div>
+
+      <button class="back-btn" onclick="go('struggling')">← Back</button>
+    </div>
+
+
+    <div class="passage" id="tools-index" role="group" aria-label="All tools">
+      <p class="prompt" style="font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:500;">All tools</p>
+      <p class="sub-prompt">Search by name or browse by category.</p>
+
+      <input type="search" class="index-search" placeholder="Search tools…" oninput="searchTools(this.value)" aria-label="Search tools">
+
+      <div id="tools-list">
+        <div class="index-section">
+          <button class="index-section-btn" onclick="toggleIndexSection('idx-regulate')">
+            Regulation & Grounding <span>▶</span>
+          </button>
+          <div class="idx-tools" id="idx-regulate">
+            <button class="idx-tool-btn" onclick="go('overwhelmed')" data-tool="5-4-3-2-1 grounding overwhelmed">5-4-3-2-1 Grounding</button>
+            <button class="idx-tool-btn" onclick="go('overwhelmed')" data-tool="paced breathing">Paced Breathing</button>
+            <button class="idx-tool-btn" onclick="go('overwhelmed')" data-tool="6/10 rule">The 6/10 Rule</button>
+            <button class="idx-tool-btn" onclick="go('body')" data-tool="temperature shift">Temperature Shift</button>
+            <button class="idx-tool-btn" onclick="go('body')" data-tool="physiological sigh">Physiological Sigh</button>
+            <button class="idx-tool-btn" onclick="go('body')" data-tool="paired muscle relaxation">Paired Muscle Relaxation</button>
+            <button class="idx-tool-btn" onclick="go('body')" data-tool="feet on the floor">Feet on the Floor</button>
+          </div>
+        </div>
+
+        <div class="index-section">
+          <button class="index-section-btn" onclick="toggleIndexSection('idx-emotions')">
+            Emotions & Feelings <span>▶</span>
+          </button>
+          <div class="idx-tools" id="idx-emotions">
+            <button class="idx-tool-btn" onclick="go('emotions')" data-tool="name it to tame it">Name It to Tame It</button>
+            <button class="idx-tool-btn" onclick="go('emotions')" data-tool="guilt vs shame">Guilt vs Shame</button>
+            <button class="idx-tool-btn" onclick="go('emotions')" data-tool="emotions come in waves">Emotions Come in Waves</button>
+            <button class="idx-tool-btn" onclick="go('deeper-emotions')" data-tool="emotion need expression">Emotion → Need → Expression</button>
+            <button class="idx-tool-btn" onclick="go('deeper-emotions')" data-tool="emotion myths">Emotion Myths — Rewritten</button>
+          </div>
+        </div>
+
+        <div class="index-section">
+          <button class="index-section-btn" onclick="toggleIndexSection('idx-thinking')">
+            Thoughts & Thinking <span>▶</span>
+          </button>
+          <div class="idx-tools" id="idx-thinking">
+            <button class="idx-tool-btn" onclick="go('thought-spiral')" data-tool="control check">Control Check</button>
+            <button class="idx-tool-btn" onclick="go('thought-spiral')" data-tool="leaves on a stream">Leaves on a Stream</button>
+            <button class="idx-tool-btn" onclick="go('thought-spiral')" data-tool="worry postponement">Worry Postponement</button>
+            <button class="idx-tool-btn" onclick="go('self-talk')" data-tool="im having the thought that">I'm Having the Thought That…</button>
+            <button class="idx-tool-btn" onclick="go('self-talk')" data-tool="the friend test">The Friend Test</button>
+            <button class="idx-tool-btn" onclick="go('self-talk')" data-tool="thought diffusion">Thought Diffusion</button>
+            <button class="idx-tool-btn" onclick="go('distortions')" data-tool="11 thinking patterns">11 Thinking Patterns</button>
+            <button class="idx-tool-btn" onclick="go('distortions')" data-tool="thought record">Thought Record — 4 Steps</button>
+            <button class="idx-tool-btn" onclick="go('wise-mind')" data-tool="wise mind">Wise Mind</button>
+          </div>
+        </div>
+
+        <div class="index-section">
+          <button class="index-section-btn" onclick="toggleIndexSection('idx-direction')">
+            Direction & Values <span>▶</span>
+          </button>
+          <div class="idx-tools" id="idx-direction">
+            <button class="idx-tool-btn" onclick="go('stuck')" data-tool="one small thing">One Small Thing</button>
+            <button class="idx-tool-btn" onclick="go('stuck')" data-tool="sort what's yours to carry">Sort What's Yours to Carry</button>
+            <button class="idx-tool-btn" onclick="go('control-check')" data-tool="what can you control">What Can You Control?</button>
+            <button class="idx-tool-btn" onclick="go('values')" data-tool="values vault">The Values Vault</button>
+            <button class="idx-tool-btn" onclick="go('values')" data-tool="values in action">Values in Action</button>
+          </div>
+        </div>
+
+        <div class="index-section">
+          <button class="index-section-btn" onclick="toggleIndexSection('idx-self')">
+            Self & Identity <span>▶</span>
+          </button>
+          <div class="idx-tools" id="idx-self">
+            <button class="idx-tool-btn" onclick="go('inner-voices')" data-tool="who's talking in there">Who's Talking in There?</button>
+            <button class="idx-tool-btn" onclick="go('inner-voices')" data-tool="narrator swap">Narrator Swap</button>
+            <button class="idx-tool-btn" onclick="go('identity')" data-tool="survival identities">Survival vs Chosen Identities</button>
+            <button class="idx-tool-btn" onclick="go('identity')" data-tool="reconstruction prompts">Reconstruction Prompts</button>
+            <button class="idx-tool-btn" onclick="go('systemic')" data-tool="systemic context its not just you">It's Not Just You</button>
+          </div>
+        </div>
+
+        <div class="index-section">
+          <button class="index-section-btn" onclick="toggleIndexSection('idx-connection')">
+            Connection & Support <span>▶</span>
+          </button>
+          <div class="idx-tools" id="idx-connection">
+            <button class="idx-tool-btn" onclick="go('urges')" data-tool="urges pulled toward something impulse">Riding out a strong urge</button>
+            <button class="idx-tool-btn" onclick="go('alone')" data-tool="reach out one person">Reach Out — One Person</button>
+            <button class="idx-tool-btn" onclick="go('alone')" data-tool="hyperindependence">Hyperindependence in Recovery</button>
+            <button class="idx-tool-btn" onclick="go('alone')" data-tool="connexontario">ConnexOntario</button>
+          </div>
+        </div>
+      </div>
+
+      <p id="no-results" style="display:none;font-size:0.875rem;color:var(--muted);padding:8px 0;">No tools found.</p>
+
+      <button class="back-btn" onclick="go('triage')">← Back to start</button>
+    </div>
+
+    <!-- ABOUT -->
+    <div class="passage" id="about" role="group" aria-label="About Maps and Mirrors">
+      <p class="prompt" style="font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:500;">About Maps and Mirrors</p>
+      <hr class="divi">
+
+      <div class="tool-card">
+        <h3>What This Is</h3>
+        <p>Maps and Mirrors is a self-help support tool built on evidence-based approaches including CBT, ACT, DBT, and Narrative Therapy. It's designed to help you find direction and reflect on what matters — at your own pace, in your own way.</p>
+        <p style="margin-top:8px;">It works best alongside care — not instead of it.</p>
+      </div>
+
+      <div class="tool-card">
+        <h3>A space for yourself</h3>
+        <p>If you want to leave a note for the version of you that might need this light again, there's a space for that. You can find it at the bottom of any deeper reflection, or go there directly.</p>
+        <button onclick="go('message-bottle')" style="background:none;border:none;color:var(--accent);font-family:'DM Sans',sans-serif;font-size:0.875rem;cursor:pointer;padding:4px 0;text-decoration:underline;text-underline-offset:3px;">Write a note to future you →</button>
+      </div>
+
+      <div class="tool-card">
+        <h3>Privacy</h3>
+        <p>This tool collects no personal information. There are no accounts, no login, and nothing is sent anywhere. Your usage patterns stay on your device until you choose to clear them — they don't disappear when you close the tab.</p>
+      </div>
+
+      <div class="tool-card" id="install-card">
+        <h3>Save to your phone</h3>
+        <p id="install-android" style="display:none;font-size:0.875rem;line-height:1.7;">
+          Tap <strong>⋮ Menu → Add to Home Screen</strong> to save this tool to your phone. It works offline once installed.
+        </p>
+        <p id="install-ios" style="display:none;font-size:0.875rem;line-height:1.7;">
+          Tap the <strong>Share button → Add to Home Screen</strong> to save this tool to your phone. It works offline once saved.
+        </p>
+        <p id="install-desktop" style="display:none;font-size:0.875rem;line-height:1.7;">
+          Open this page on your phone to save it to your home screen for quick access.
+        </p>
+        <button id="install-btn" style="display:none;margin-top:10px;padding:9px 18px;background:var(--accent);color:white;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.875rem;font-weight:500;cursor:pointer;" onclick="triggerInstall()">
+          Add to Home Screen
+        </button>
+      </div>
+
+      <div class="tool-card">
+        <h3>If You Need Immediate Support</h3>
+        <p>Call 911 · Call or text 988 · Text HOME to 741741</p>
+      </div>
+
+      <button class="back-btn" onclick="go('triage')">← Back to start</button>
+    </div>
+
+  </div><!-- end .card -->
+
+  <p style="text-align:center;font-size:0.75rem;color:var(--muted);margin-top:14px;line-height:1.6;">
+    <button style="background:none;border:none;color:var(--muted);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;" onclick="go('about')">About</button>
+    &nbsp;·&nbsp;
+    <button style="background:none;border:none;color:var(--muted);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;" onclick="go('tools-index')">All tools</button>
+  </p>
+
+</div><!-- end .container -->
+
+<!-- Crisis bar -->
+<div class="crisis-bar" id="crisis-bar" role="complementary" aria-label="Crisis support">
+  <span class="bar-label">If you need immediate support:</span>
+  <span>Emergency: call 911</span>
+  <span>|</span>
+  <span>Crisis: call or text 988</span>
+</div>
+
+<!-- Persistent support suggestion — appears after 3 accumulated Not quite -->
+<div id="support-suggestion" style="display:none;position:fixed;bottom:52px;left:0;right:0;
+  background:var(--card);border-top:1.5px solid rgba(45,90,107,0.25);
+  padding:10px 20px;z-index:45;text-align:center;animation:fadeUp 0.3s ease forwards;">
+  <p style="font-size:0.82rem;color:var(--muted);margin-bottom:6px;line-height:1.5;">
+    You've tried a few things. It might help to talk to someone.
+  </p>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+    <button onclick="window.location='tel:988'"
+      style="padding:6px 14px;background:none;border:1.5px solid rgba(180,60,50,0.4);
+      border-radius:20px;font-family:'DM Sans',sans-serif;font-size:0.8rem;
+      color:#8b2e2a;cursor:pointer;">📞 Call or text 988</button>
+    <button onclick="document.getElementById('support-suggestion').style.display='none'"
+      style="padding:6px 14px;background:none;border:1.5px solid var(--border);
+      border-radius:20px;font-family:'DM Sans',sans-serif;font-size:0.8rem;
+      color:var(--muted);cursor:pointer;">Not now</button>
+  </div>
+</div>
+
+<script>
+// ── PWA INSTALL ──────────────────────────────────────────────────────────
+var _deferredInstallPrompt = null;
+
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  _deferredInstallPrompt = e;
+  // Show the install button if user is on About page
+  var btn = document.getElementById('install-btn');
+  var androidMsg = document.getElementById('install-android');
+  if (btn) btn.style.display = 'block';
+  if (androidMsg) androidMsg.style.display = 'none'; // button handles it
+});
+
+function triggerInstall() {
+  if (_deferredInstallPrompt) {
+    _deferredInstallPrompt.prompt();
+    _deferredInstallPrompt.userChoice.then(function() {
+      _deferredInstallPrompt = null;
+      var btn = document.getElementById('install-btn');
+      if (btn) btn.style.display = 'none';
+    });
+  }
+}
+
+function initInstallCard() {
+  var card = document.getElementById('install-card');
+  if (!card) return;
+  var ua = navigator.userAgent;
+  var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+  var isAndroid = /Android/.test(ua);
+  var isStandalone = window.matchMedia('(display-mode: standalone)').matches
+    || window.navigator.standalone;
+
+  if (isStandalone) {
+    // Already installed — hide the card entirely
+    card.style.display = 'none';
+    return;
+  }
+  if (isIOS) {
+    var el = document.getElementById('install-ios');
+    if (el) el.style.display = 'block';
+  } else if (isAndroid) {
+    var el2 = document.getElementById('install-android');
+    if (el2) el2.style.display = 'block';
+    // install-btn will also show if beforeinstallprompt fires
+  } else {
+    var el3 = document.getElementById('install-desktop');
+    if (el3) el3.style.display = 'block';
+  }
+}
+
+// Run when About page is visited
+var _origGo = null;
+document.addEventListener('DOMContentLoaded', function() {
+  initInstallCard();
+});
+
+// ── START OVER ───────────────────────────────────────────────────────────
+// No data logging, no confirmation, no session reference on return
+var _triageOnlyPages = ['triage', 'crisis-now'];
+
+function goStartOver() {
+  go('triage');
+  // Hide the start-over button when on triage
+  var btn = document.getElementById('start-over-btn');
+  if (btn) btn.style.display = 'none';
+}
+
+// ── HOW IT WORKS TOGGLE ──────────────────────────────────────────────────
+function toggleHowItWorks() {
+  var panel = document.getElementById('how-it-works-panel');
+  var btn = document.getElementById('how-it-works-btn');
+  if (!panel || !btn) return;
+  var isOpen = panel.style.display === 'block';
+  panel.style.display = isOpen ? 'none' : 'block';
+  btn.setAttribute('aria-expanded', !isOpen);
+  btn.textContent = isOpen ? 'How it works ↓' : 'How it works ↑';
+}
+
+// ── NAVIGATION ──────────────────────────────────────────────────
+var _currentPage = 'triage';
+
+var _calmPages = ['growing','values','inner-voices','control-check','identity',
+  'systemic','about','tools-index','deeper-overwhelmed','deeper-emotions'];
+
+function go(id) {
+  var passages = document.querySelectorAll('.passage');
+  passages.forEach(function(p) { p.classList.remove('active'); });
+  var target = document.getElementById(id);
+  if (target) {
+    target.classList.add('active');
+    window.scrollTo(0, 0);
+    _currentPage = id;
+    // Move keyboard focus to the passage for screen reader users
+    target.setAttribute('tabindex', '-1');
+    target.focus({ preventScroll: true });
+  }
+  // Crisis bar subtlety
+  var bar = document.getElementById('crisis-bar');
+  if (bar) {
+    if (_calmPages.indexOf(id) >= 0) bar.classList.add('subtle');
+    else bar.classList.remove('subtle');
+  }
+  // Session storage
+  try { sessionStorage.setItem('mm_last', id); } catch(e) {}
+  // localStorage logging — no personal data
+  logVisit(id);
+  // Visit awareness
+  showVisitHint(id);
+  // Populate session summary when navigating to message-bottle
+  if (id === 'message-bottle') { setTimeout(populateSessionSummary, 50); }
+
+  // Show start-over button on all pages except triage and crisis
+  var soBtn = document.getElementById('start-over-btn');
+  if (soBtn) {
+    var hideOn = ['triage', 'crisis-now'];
+    soBtn.style.display = hideOn.indexOf(id) >= 0 ? 'none' : 'block';
+  }
+}
+
+// ── LEARN MORE ──────────────────────────────────────────────────
+function toggleLearn(btn) {
+  var content = btn.nextElementSibling;
+  var expanded = btn.getAttribute('aria-expanded') === 'true';
+  btn.setAttribute('aria-expanded', !expanded);
+  content.style.display = expanded ? 'none' : 'block';
+  content.setAttribute('aria-hidden', expanded);
+}
+
+// ── OUTCOME LOGIC ───────────────────────────────────────────────
+var _fallbackCounts = {};
+
+// ── SESSION-LEVEL NOT QUITE COUNTER ─────────────────────────────────────
+var _sessionNotQuite = 0;
+try {
+  _sessionNotQuite = parseInt(sessionStorage.getItem('mm_nq') || '0', 10);
+} catch(e) {}
+
+function incrementNotQuite() {
+  _sessionNotQuite++;
+  try { sessionStorage.setItem('mm_nq', _sessionNotQuite); } catch(e) {}
+  if (_sessionNotQuite >= 3) {
+    var bar = document.getElementById('support-suggestion');
+    if (bar) bar.style.display = 'block';
+  }
+}
+
+function logAndShow(result, pageId, closureId, fallbackId, escId) {
+  // Log to localStorage
+  saveLog({ pageId: pageId, result: result });
+
+  var key = pageId;
+  if (result === 'yes') {
+    document.querySelector('.outcome-check').style.display = 'none';
+    document.getElementById(closureId).style.display = 'block';
+    _fallbackCounts[key] = 0;
+  } else {
+    _fallbackCounts[key] = (_fallbackCounts[key] || 0) + 1;
+    incrementNotQuite();
+    document.querySelector('.outcome-check').style.display = 'none';
+    if (_fallbackCounts[key] >= 2) {
+      document.getElementById(escId).style.display = 'block';
+    } else {
+      document.getElementById(fallbackId).style.display = 'block';
+    }
+  }
+}
+
+// ── BREATHING ───────────────────────────────────────────────────
+var _breathTimers = {};
+
+function startPaced(prefix) {
+  stopBreath(prefix);
+  var circle = document.getElementById(prefix + '-breath-circle');
+  if (!circle) return;
+  var phase = 0;
+  var phases = [
+    { label: 'Breathe in', duration: 4000 },
+    { label: 'Breathe out slowly', duration: 6000 }
+  ];
+  function tick() {
+    var p = phases[phase % phases.length];
+    circle.textContent = p.label;
+    circle.style.transform = (phase % 2 === 0) ? 'scale(1.25)' : 'scale(1)';
+    circle.style.borderColor = (phase % 2 === 0) ? 'var(--accent2)' : 'var(--accent)';
+    phase++;
+    _breathTimers[prefix] = setTimeout(tick, p.duration);
+  }
+  tick();
+}
+
+function stopBreath(prefix) {
+  if (_breathTimers[prefix]) clearTimeout(_breathTimers[prefix]);
+  var circle = document.getElementById(prefix + '-breath-circle');
+  if (circle) { circle.textContent = 'Ready'; circle.style.transform = 'scale(1)'; circle.style.borderColor = 'var(--accent)'; }
+}
+
+// ── SETTINGS ────────────────────────────────────────────────────
+function toggleSettings() {
+  var p = document.getElementById('settings-panel');
+  p.style.display = p.style.display === 'block' ? 'none' : 'block';
+}
+document.addEventListener('click', function(e) {
+  var panel = document.getElementById('settings-panel');
+  var btn = document.getElementById('settings-btn');
+  if (panel && panel.style.display === 'block' && !panel.contains(e.target) && e.target !== btn) {
+    panel.style.display = 'none';
+  }
+});
+
+var _darkOn = false;
+function toggleDark() {
+  _darkOn = !_darkOn;
+  document.body.classList.toggle('dark-mode', _darkOn);
+}
+
+var _fontSizes = ['', 'text-lg', 'text-xl'];
+var _fontIdx = 0;
+function cycleFontSize() {
+  _fontIdx = (_fontIdx + 1) % _fontSizes.length;
+  document.documentElement.className = _fontSizes[_fontIdx];
+}
+
+// ── TOOLS INDEX ─────────────────────────────────────────────────
+function toggleIndexSection(id) {
+  var el = document.getElementById(id);
+  el.style.display = el.style.display === 'block' ? 'none' : 'block';
+}
+
+function searchTools(query) {
+  var q = query.toLowerCase().trim();
+  var btns = document.querySelectorAll('.idx-tool-btn');
+  var sections = document.querySelectorAll('.index-section');
+  var noResults = document.getElementById('no-results');
+  var anyVisible = false;
+
+  if (!q) {
+    sections.forEach(function(s) { s.style.display = 'block'; });
+    btns.forEach(function(b) { b.style.display = 'block'; });
+    document.getElementById('tools-list').style.display = 'block';
+    noResults.style.display = 'none';
+    return;
+  }
+
+  sections.forEach(function(s) {
+    var visible = false;
+    s.querySelectorAll('.idx-tool-btn').forEach(function(b) {
+      var match = b.getAttribute('data-tool').indexOf(q) >= 0 || b.textContent.toLowerCase().indexOf(q) >= 0;
+      b.style.display = match ? 'block' : 'none';
+      if (match) { visible = true; anyVisible = true; }
+    });
+    s.style.display = visible ? 'block' : 'none';
+    if (visible) {
+      var tools = s.querySelector('.idx-tools');
+      if (tools) tools.style.display = 'block';
+    }
+  });
+
+  noResults.style.display = anyVisible ? 'none' : 'block';
+  document.getElementById('tools-list').style.display = anyVisible ? 'block' : 'none';
+}
+
+// ── LOCALSTORAGE LOGGING ─────────────────────────────────────────
+function loadLogs() {
+  try {
+    var raw = localStorage.getItem('mm_logs');
+    return raw ? JSON.parse(raw) : [];
+  } catch(e) { return []; }
+}
+
+function saveLog(entry) {
+  try {
+    var logs = loadLogs();
+    logs.push({
+      timestamp: new Date().toISOString(),
+      pageId: entry.pageId || _currentPage,
+      result: entry.result || null
+    });
+    // Keep last 200 entries
+    if (logs.length > 200) logs = logs.slice(-200);
+    localStorage.setItem('mm_logs', JSON.stringify(logs));
+  } catch(e) {}
+}
+
+function logVisit(pageId) {
+  // Only log skill passages, not menus
+  var skipPages = ['triage','crisis-now','struggling','thoughts','growing',
+    'anticipatory','tools-index','about'];
+  if (skipPages.indexOf(pageId) >= 0) return;
+  saveLog({ pageId: pageId, result: null });
+}
+
+// ── PATTERN SUMMARY ──────────────────────────────────────────────
+function getSimplePatterns() {
+  var logs = loadLogs();
+  if (logs.length < 3) return null;
+
+  // Count page visits
+  var pageCounts = {};
+  var helpedCounts = {};
+  var totalHelped = 0;
+  var totalRated = 0;
+
+  logs.forEach(function(log) {
+    if (log.pageId) {
+      pageCounts[log.pageId] = (pageCounts[log.pageId] || 0) + 1;
+    }
+    if (log.result === 'yes') { totalHelped++; totalRated++; }
+    if (log.result === 'no') { totalRated++; }
+  });
+
+  // Page labels
+  var labels = {
+    'overwhelmed': 'grounding when overwhelmed',
+    'body': 'body-based regulation',
+    'emotions': 'working with emotions',
+    'stuck': 'finding direction when stuck',
+    'alone': 'connection and support',
+    'thought-spiral': 'breaking thought loops',
+    'self-talk': 'managing self-talk',
+    'distortions': 'recognising thinking patterns',
+    'wise-mind': 'accessing Wise Mind',
+    'values': 'connecting with values',
+    'inner-voices': 'understanding inner voices',
+    'control-check': 'sorting what you can control',
+    'identity': 'identity and growth',
+    'systemic': 'the bigger picture'
+  };
+
+  // Most visited
+  var sorted = Object.keys(pageCounts).sort(function(a, b) {
+    return pageCounts[b] - pageCounts[a];
+  });
+  var topPage = sorted[0];
+  var topLabel = labels[topPage] || topPage;
+
+  var lines = [];
+  lines.push('You\'ve come here ' + logs.length + ' time' + (logs.length === 1 ? '' : 's') + '.');
+
+  if (topLabel) {
+    lines.push('You\'ve returned to ' + topLabel + ' most often.');
+  }
+
+  if (totalRated > 0) {
+    var pct = Math.round((totalHelped / totalRated) * 100);
+    if (pct >= 70) {
+      lines.push('The tools seem to be helping — ' + pct + '% of the time you said yes.');
+    } else if (pct >= 40) {
+      lines.push('Some tools are landing, others aren\'t yet. That\'s useful information.');
+    } else {
+      lines.push('The tools haven\'t been hitting the mark. It might be worth trying a different pathway, or talking to someone directly.');
+    }
+  }
+
+  return lines.join('\n\n');
+}
+
+function showPatterns() {
+  document.getElementById('settings-panel').style.display = 'none';
+  var patterns = getSimplePatterns();
+  var el = document.getElementById('patterns-content');
+  if (patterns) {
+    el.innerHTML = patterns.split('\n\n').map(function(line) {
+      return '<p>' + line + '</p>';
+    }).join('');
+  } else {
+    el.innerHTML = '<p style="color:var(--muted)">Not enough data yet. Keep using the tool and patterns will appear here.</p>';
+  }
+  document.getElementById('patterns-modal').classList.add('open');
+  // Move focus into modal for screen reader users
+  setTimeout(function() {
+    var closeBtn = document.querySelector('#patterns-modal .modal-close');
+    if (closeBtn) closeBtn.focus();
+  }, 50);
+}
+
+function closePatterns() {
+  document.getElementById('patterns-modal').classList.remove('open');
+}
+
+function clearData() {
+  if (confirm('This will clear your usage history from this device. Are you sure?')) {
+    try {
+      localStorage.removeItem('mm_logs');
+      sessionStorage.clear();
+    } catch(e) {}
+    document.getElementById('settings-panel').style.display = 'none';
+    alert('Your data has been cleared.');
+  }
+}
+
+// ── VISIT AWARENESS ───────────────────────────────────────────────
+var _visitCounts = {};
+try {
+  var _vc = sessionStorage.getItem('mm_visits');
+  if (_vc) _visitCounts = JSON.parse(_vc);
+} catch(e) {}
+
+function showVisitHint(id) {
+  var skipPages = ['triage','crisis-now','struggling','thoughts','growing',
+    'anticipatory','tools-index','about','crisis-bar'];
+  if (skipPages.indexOf(id) >= 0) return;
+  _visitCounts[id] = (_visitCounts[id] || 0) + 1;
+  try { sessionStorage.setItem('mm_visits', JSON.stringify(_visitCounts)); } catch(e) {}
+  if (_visitCounts[id] < 2) return;
+  var passage = document.getElementById(id);
+  if (!passage) return;
+  if (passage.querySelector('.visit-hint')) return;
+  var hint = document.createElement('p');
+  hint.className = 'visit-hint';
+  hint.style.cssText = 'font-size:0.78rem;color:var(--muted);opacity:0.65;text-align:center;margin-bottom:10px;font-style:italic;';
+  hint.textContent = _visitCounts[id] === 2 ? "You've been here before." : "You keep coming back here.";
+  var prompt = passage.querySelector('.prompt');
+  if (prompt && prompt.parentNode) prompt.parentNode.insertBefore(hint, prompt);
+}
+
+// ── SESSION SUMMARY ──────────────────────────────────────────────────────
+function buildSessionSummary() {
+  var logs = loadLogs();
+  if (!logs || logs.length === 0) return null;
+  var twoHoursAgo = Date.now() - (2 * 60 * 60 * 1000);
+  var session = logs.filter(function(l) {
+    return new Date(l.timestamp).getTime() > twoHoursAgo;
+  });
+  if (session.length === 0) return null;
+  var labels = {
+    'overwhelmed':'grounding through overwhelm','body':'body-based regulation',
+    'emotions':'working with emotions','stuck':'finding direction',
+    'alone':'connection and support','thought-spiral':'breaking thought loops',
+    'self-talk':'managing self-talk','distortions':'recognising thinking patterns',
+    'wise-mind':'accessing Wise Mind','values':'connecting with values',
+    'inner-voices':'understanding inner voices','control-check':'sorting what you can control',
+    'identity':'identity and growth','systemic':'the bigger picture',
+    'deeper-overwhelmed':'deeper reflection on overwhelm','deeper-emotions':'deeper work with emotions',
+    'deeper-distortions':'decoding a thought pattern','deeper-values':'living your values',
+    'deeper-inner-voices':'knowing your inner voices','deeper-identity':'exploring versions of yourself',
+    'deeper-systemic':'naming systemic sources',
+    'urges':'riding out a strong urge',
+    'deeper-distortions':'decoding a thought pattern',
+    'deeper-values':'living your values',
+    'deeper-inner-voices':'knowing your inner voices',
+    'deeper-identity':'exploring versions of yourself'
+  };
+  var skipPages = ['triage','crisis-now','struggling','thoughts','growing',
+    'anticipatory','tools-index','about','message-bottle'];
+  var visited = [], seen = {};
+  session.forEach(function(l) {
+    if (!seen[l.pageId] && skipPages.indexOf(l.pageId) < 0 && labels[l.pageId]) {
+      seen[l.pageId] = true; visited.push(l.pageId);
+    }
+  });
+  var helped = session.filter(function(l) { return l.result === 'yes'; });
+  var lines = [];
+  if (visited.length > 0) {
+    lines.push('Today you worked with: ' + visited.map(function(p){return labels[p];}).join(', ') + '.');
+  }
+  if (helped.length > 0) {
+    var hPages = helped.map(function(l){return labels[l.pageId]||l.pageId;});
+    var unique = hPages.filter(function(v,i,a){return a.indexOf(v)===i;});
+    if (unique.length === 1) lines.push(unique[0].charAt(0).toUpperCase()+unique[0].slice(1)+' seemed to help.');
+    else if (unique.length > 1) lines.push('A few things seemed to help: '+unique.join(', ')+'.');
+  }
+  return lines.length ? lines.join(' ') : null;
+}
+
+function populateSessionSummary() {
+  var summary = buildSessionSummary();
+  var block = document.getElementById('session-summary-block');
+  var el = document.getElementById('session-summary-text');
+  if (!block || !el) return;
+  if (summary) { el.textContent = summary; block.style.display = 'block'; }
+  else { block.style.display = 'none'; }
+}
+
+function buildExportText() {
+  var summary = buildSessionSummary() || '';
+  var shift = (document.getElementById('bottle-shift')||{}).value || '';
+  var helped_txt = (document.getElementById('bottle-helped')||{}).value || '';
+  var remember = (document.getElementById('bottle-remember')||{}).value || '';
+  var letter = (document.getElementById('bottle-letter')||{}).value || '';
+  var parts = [];
+  parts.push('MAPS AND MIRRORS — A NOTE TO FUTURE ME');
+  parts.push('Written: ' + new Date().toLocaleDateString('en-CA',{year:'numeric',month:'long',day:'numeric'}));
+  parts.push('');
+  if (summary) { parts.push('— What I worked on today —'); parts.push(summary); parts.push(''); }
+  if (shift || helped_txt || remember) {
+    parts.push('— What I noticed —');
+    if (shift) parts.push('Something that shifted: ' + shift);
+    if (helped_txt) parts.push('What helped: ' + helped_txt);
+    if (remember) parts.push('What I want to remember: ' + remember);
+    parts.push('');
+  }
+  if (letter) { parts.push('— My letter to future me —'); parts.push(letter); parts.push(''); }
+  parts.push('Maps and Mirrors · maps-and-mirrors.com');
+  return parts.join('\n');
+}
+
+function copyBottle() {
+  var text = buildExportText();
+  var doFallback = function() {
+    var ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+  };
+  var btn = document.getElementById('copy-bottle-btn');
+  var done = function() { if(btn){btn.textContent='✓ Copied'; setTimeout(function(){btn.textContent='📋 Copy to clipboard';},2000);} };
+  if (navigator.clipboard) { navigator.clipboard.writeText(text).then(done).catch(function(){doFallback();done();}); }
+  else { doFallback(); done(); }
+}
+
+function downloadBottle() {
+  var text = buildExportText();
+  var blob = new Blob([text],{type:'text/plain'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'maps-and-mirrors-' + new Date().toISOString().slice(0,10) + '.txt';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+// ── SESSION RESTORE ───────────────────────────────────────────────
+(function() {
+  try {
+    var last = sessionStorage.getItem('mm_last');
+    var skipRestore = ['triage','crisis-now'];
+    if (last && skipRestore.indexOf(last) < 0) {
+      var triage = document.getElementById('triage');
+      if (triage) {
+        var wb = document.createElement('div');
+        wb.className = 'welcome-back';
+        wb.innerHTML = '<p>Welcome back. Pick up where you left off?</p>' +
+          '<button onclick="go(\'' + last + '\')">Continue →</button>';
+        var firstChild = triage.querySelector('.prompt');
+        if (firstChild) triage.insertBefore(wb, firstChild);
+      }
+    }
+  } catch(e) {}
+})();
+</script>
+</body>
+</html>
