@@ -1,0 +1,44 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Maps & Mirrors</title>
+<style>
+body {font-family: Arial; background:#eef2f5; display:flex; justify-content:center; align-items:center; height:100vh;}
+.card {background:white; padding:30px; border-radius:12px; width:500px;}
+.option {border:1px solid #ccc; padding:12px; margin:10px 0; border-radius:10px; cursor:pointer;}
+</style>
+<script>
+function goTo(target){
+  alert("Navigate to: " + target);
+}
+</script>
+</head>
+<body>
+<div class="card">
+<h2>What's pulling at you?</h2>
+
+<div class="option" onclick="goTo('rumination')">
+I can’t stop thinking about this. It just keeps coming back.
+</div>
+
+<div class="option" onclick="goTo('distortion')">
+My mind is telling me a story that feels completely true.
+</div>
+
+<div class="option" onclick="goTo('self_criticism')">
+The voice in my head is being really cruel to me right now.
+</div>
+
+<div class="option" onclick="goTo('wise_mind')">
+Maybe there’s another way to see this.
+</div>
+
+<div class="option" onclick="goTo('grief')">
+I’m trying to make sense of something I lost.
+</div>
+
+</div>
+</body>
+</html>
