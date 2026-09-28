@@ -7953,6 +7953,7 @@
   </div>
 </div>
 
+<script src="routes.js"></script>
 <script>
 // ── PWA INSTALL ──────────────────────────────────────────────────────────
 var _deferredInstallPrompt = null;
@@ -8519,6 +8520,8 @@ function applyHeaderImageForPassage(id) {
 
 function go(id) {
   id = resolveRetiredPassage(id);
+  var resolved = document.getElementById(id);
+  if (!resolved || !resolved.classList.contains('passage')) id = 'triage';
   // Release sticky :hover/:focus on whichever button just triggered this
   // navigation. On touch devices the previously-tapped button retains its
   // hover style until something else takes focus; explicitly blurring here
@@ -8561,7 +8564,7 @@ function go(id) {
     // back-target (the Stage 2.2 "← Back to what I named" link is the
     // explicit way to return to it).
     var _skipHistory = ['triage', 'crisis-now', 'about', 'tools-index', 'message-bottle', 'sort-through-reflect'];
-    if (_currentPage && _skipHistory.indexOf(_currentPage) < 0) {
+    if (!window.MMNavigation && _currentPage && _skipHistory.indexOf(_currentPage) < 0) {
       _navHistory.push(_currentPage);
       if (_navHistory.length > 50) _navHistory.shift(); // cap
     }
@@ -8582,9 +8585,10 @@ function go(id) {
     if (_skipLast.indexOf(id) < 0) sessionStorage.setItem('mm_last', id);
   } catch(e) {}
   // localStorage logging — no personal data
-  logVisit(id);
-  // Visit awareness
-  showVisitHint(id);
+  if (!window.MMNavigation || !MMNavigation.isTraversal()) {
+    logVisit(id);
+    showVisitHint(id);
+  }
   // Apply values entry-context line if arriving at values with a context flag
   if (id === 'values') { try { _applyValuesContext(); } catch(e) {} }
   // Populate session summary when navigating to message-bottle
@@ -8652,13 +8656,14 @@ function go(id) {
     // exists and the listener has cards to filter against.
     try { _mmBottleAttachFilterListener(); } catch(e) {}
     // Load previous letter for time bridge
-    setTimeout(loadPreviousBottle, 100);
-    setTimeout(populateSessionSummary, 50); }
+    mmEntryLater(loadPreviousBottle, 100);
+    mmEntryLater(populateSessionSummary, 50); }
 
   // ── PACING: SLOW SECTIONAL FADE ──────────────────────────────────────────
   (function() {
     var passageEl = document.getElementById(id);
     if (!passageEl) return;
+    if (window.MMNavigation && MMNavigation.isTargeted()) return;
 
     var skip = ['triage','crisis-now','about','tools-index','message-bottle','thought-spiral-guided','self-talk-guided','control-check-guided','urge-surfing','emotion-labeling','overwhelmed'];
     if (skip.indexOf(id) >= 0) return;
@@ -8791,11 +8796,11 @@ function go(id) {
     // Section 1 is already visible (set above). Fade in sections 2 then 3
     // with the existing calm pacing, so only the supporting content emerges
     // gradually — the opening line is there from the first frame.
-    setTimeout(function() {
+    mmEntryLater(function() {
       if (done) return;
       fadeIn(section2);
       // Section 3 — after another PAUSE
-      setTimeout(function() {
+      mmEntryLater(function() {
         if (done) return;
         fadeIn(section3);
       }, PAUSE);
@@ -9157,6 +9162,7 @@ function ovgReset(focusIt) {
 // is force-revealed here to defeat the staged fade for this one card (harmless
 // under reduced motion, where the fade is skipped and these are already set).
 function goBodyTemperatureFromOverwhelmed() {
+  if (window.MMNavigation) { MMNavigation.openTarget('body', 'card-body-temperature-shift'); return; }
   if (typeof go === 'function') go('body');
   var raf = (typeof requestAnimationFrame === 'function')
     ? requestAnimationFrame
@@ -9347,7 +9353,7 @@ function cycleFontSize() {
 // ── TOOL LIBRARY (tlib-*) — search index, search/route, category toggle ──
 // All named tools live in TOOL_INDEX, which is the single source of truth for
 // search. Some entries are visible-in-categories; others are searchOnly.
-var TOOL_INDEX = [{"name":"Before the Next Move","passage":"one-beat","card":null,"badges":["Quick"],"category":"Calm & Ground","aliases":["pause","stop","beat","mid-action","before sending","before saying","before reacting","interrupt","slow down","one second","wait","step back","one beat","take a beat","hit pause","react","reactive","about to send","about to say","letting go","let go"]},{"name":"5-4-3-2-1 Grounding","passage":"overwhelmed","card":"card-overwhelmed-5-4-3-2-1-grounding","badges":["Quick","Body"],"category":"Calm & Ground","aliases":["five senses","senses grounding"]},{"name":"Paced Breathing","passage":"overwhelmed","card":"card-overwhelmed-paced-breathing","badges":["Quick","Body"],"category":"Calm & Ground","aliases":["breathing exercise","breath count"]},{"name":"The 6/10 Rule","passage":"overwhelmed","card":"card-overwhelmed-the-610-rule","badges":["Quick","Body"],"category":"Calm & Ground","aliases":["6 out of 10","intensity rule"]},{"name":"Physiological Sigh","passage":"body","card":"card-body-physiological-sigh","badges":["Quick","Body"],"category":"Calm & Ground","aliases":["double inhale","huberman"]},{"name":"Box Breathing","passage":"body","card":"card-body-box-breathing","badges":["Quick","Body"],"category":"Calm & Ground","aliases":["box breathing","square breathing","breathing box","breath hold","anger breathing","focus breathing","charged energy","4-4-4-4","tactical breathing"]},{"name":"Temperature Shift","passage":"body","card":"card-body-temperature-shift","badges":["Quick","Body"],"category":"Calm & Ground","aliases":["cold water","ice","tipp"]},{"name":"Feet on the Floor","passage":"body","card":"card-body-feet-on-the-floor","badges":["Quick","Body"],"category":"Calm & Ground","aliases":["grounding feet","earth"]},{"name":"Paired Muscle Relaxation","passage":"body","card":"card-body-paired-muscle-relaxation","badges":["Quick","Body"],"category":"Calm & Ground","aliases":["pmr","muscle tension"]},{"name":"Running on Empty","passage":"running-on-empty","card":null,"badges":["Quick","Body"],"category":"Calm & Ground","aliases":["body needs","depleted","exhausted","halt","hungry tired","tired hungry","burned out","fried","wiped","depletion","side check","sleep","sleep hygiene","sleep support","can't sleep","cant sleep","insomnia","tired but wired","not sleeping","rest","wind down","bedtime","getting ready for sleep"]},{"name":"What's Underneath the Overwhelm","passage":"deeper-overwhelmed","card":null,"badges":["Deeper","Reflection"],"category":"Calm & Ground","aliases":["overwhelmed underneath"]},{"name":"Riding out a strong urge","passage":"urge-check","card":null,"badges":["Guided","Urges"],"category":"Strong Urges","aliases":["urge","impulse","craving"]},{"name":"Urge Surfing","passage":"urge-surfing","card":null,"badges":["Guided","Urges"],"category":"Strong Urges","aliases":["surf urge","wave urge"]},{"name":"Buy Yourself 10 Minutes","passage":"urges","card":"card-urges-buy-yourself-10-minutes","badges":["Quick","Urges"],"category":"Strong Urges","aliases":["delay urge","ten minutes","wait it out","ride urge","buy 10 minutes"]},{"name":"Check the Basics First","passage":"urges","card":"card-urges-check-the-basics-first","badges":["Quick","Urges"],"category":"Strong Urges","aliases":["halt","hungry tired","self care urge"]},{"name":"Ride It Out","passage":"urges","card":"card-urges-ride-it-out","badges":["Quick","Urges"],"category":"Strong Urges","aliases":["wave urge","let it pass"]},{"name":"Name It to Tame It","passage":"emotions","card":"card-emotions-name-it-to-tame-it","badges":["Quick","Feelings"],"category":"Feelings & Emotions","aliases":["label feelings","affect labeling"]},{"name":"Emotions Come in Waves","passage":"emotions","card":"card-emotions-emotions-come-in-waves","badges":["Quick","Feelings"],"category":"Feelings & Emotions","aliases":["wave","emotional surge"]},{"name":"Guilt vs Shame","passage":"emotions","card":"card-emotions-guilt-vs-shame-an-important-difference","badges":["Quick","Feelings"],"category":"Feelings & Emotions","aliases":["i did bad","i am bad","shame"]},{"name":"Name What's Here","passage":"emotion-labeling","card":null,"badges":["Guided","Feelings"],"category":"Feelings & Emotions","aliases":["label emotion guided","emotion check in"]},{"name":"What Are Your Emotions Saying","passage":"deeper-emotions","card":null,"badges":["Deeper","Feelings"],"category":"Feelings & Emotions","aliases":["emotion message","feeling underneath"]},{"name":"Emotion → Need → Expression","passage":"deeper-emotions","card":"card-deeper-emotions-emotion-need-expression","badges":["Reflection","Feelings"],"category":"Feelings & Emotions","aliases":["nvc","needs","expression"]},{"name":"Work Through a Looping Thought","passage":"thought-spiral-guided","card":null,"badges":["Guided","Thoughts"],"category":"Thoughts & Loops","aliases":["spiral","rumination","looping thought"]},{"name":"Leaves on a Stream","passage":"thought-spiral","card":null,"badges":["Quick","Thoughts"],"category":"Thoughts & Loops","aliases":["leaves stream","act diffusion"],"external":"leaves-on-a-stream.html"},{"name":"Worry Postponement","passage":"thought-spiral","card":null,"badges":["Quick","Thoughts"],"category":"Thoughts & Loops","aliases":["worry time","postpone worry"]},{"name":"I'm Having the Thought That…","passage":"self-talk","card":"card-self-talk-im-having-the-thought-that","badges":["Quick","Thoughts"],"category":"Thoughts & Loops","aliases":[]},{"name":"The Friend Test","passage":"self-talk","card":"card-self-talk-the-friend-test","badges":["Quick","Thoughts"],"category":"Thoughts & Loops","aliases":[]},{"name":"Thought Diffusion","passage":"self-talk","card":"card-self-talk-thought-diffusion-lighten-the-grip","badges":["Quick","Thoughts"],"category":"Thoughts & Loops","aliases":[]},{"name":"11 Thinking Patterns","passage":"distortions","card":"card-distortions-11-patterns-worth-knowing","badges":["Reflection","Thoughts"],"category":"Thoughts & Loops","aliases":["cognitive distortions","thinking errors","all or nothing"]},{"name":"Thought Record","passage":"distortions","card":"card-distortions-thought-record-4-steps","badges":["Reflection","Thoughts"],"category":"Thoughts & Loops","aliases":["cbt thought record","evidence for against"]},{"name":"Decode a Thinking Pattern","passage":"deeper-distortions","card":null,"badges":["Deeper","Thoughts"],"category":"Thoughts & Loops","aliases":["decode distortion"]},{"name":"Control Check","passage":"control-check","card":null,"badges":["Reflection","Action"],"category":"Control, Action & Next Steps","aliases":["circle control"]},{"name":"Sort What's Yours to Carry","passage":"control-check-guided","card":null,"badges":["Guided","Action"],"category":"Control, Action & Next Steps","aliases":["mine not mine","control sort","circle of control"]},{"name":"One Small Thing","passage":"stuck","card":"card-stuck-one-small-thing","badges":["Quick","Action"],"category":"Control, Action & Next Steps","aliases":[]},{"name":"If/Then Plan","passage":"stuck","card":"card-stuck-ifthen-plan","badges":["Quick","Action"],"category":"Control, Action & Next Steps","aliases":["implementation intention","if this then that","plan ahead","if then","if-then"]},{"name":"What Can You Control?","passage":"control-check","card":null,"badges":["Reflection","Action"],"category":"Control, Action & Next Steps","aliases":["control influence"]},{"name":"Preparing for Something Difficult","passage":"anticipatory","card":null,"badges":["Guided","Action"],"category":"Control, Action & Next Steps","aliases":["before hard thing","anticipatory"]},{"name":"Low, Flat, or Shut Down","passage":"hypoarousal","card":null,"badges":["Guided","Support"],"category":"Support & Connection","aliases":["numb","flat","shutdown","freeze","dissociation"]},{"name":"Reach Out — One Person","passage":"alone","card":"card-alone-one-reach-right-now","badges":["Action","Support"],"category":"Support & Connection","aliases":["text someone","call someone","one person"]},{"name":"Hyperindependence in Recovery","passage":"alone","card":"card-alone-hyperindependence","badges":["Reflection","Support"],"category":"Support & Connection","aliases":["asking for help","do it alone"]},{"name":"If You Have No One to Call","passage":"alone","card":"card-alone-if-you-have-no-one-to-call","badges":["Support"],"category":"Support & Connection","aliases":["alone no one","no contacts","warmline"]},{"name":"Support Plan","passage":"support-plan-guided","card":null,"badges":["Guided","Support"],"category":"Support & Connection","aliases":["plan support","who to reach","list people"]},{"name":"ConnexOntario","passage":"alone","card":null,"badges":["Support"],"category":"Support & Connection","aliases":["ontario helpline","addiction support ontario","mental health ontario"]},{"name":"Psychology Today","passage":"support-plan-guided","card":null,"badges":["Support"],"category":"Support & Connection","aliases":["therapist","therapy directory","find a therapist","professional support","psychology today canada"],"searchOnly":true},{"name":"Reframe the Inner Critic","passage":"self-talk-guided","card":null,"badges":["Guided","Thoughts"],"category":"Self-Talk & Identity","aliases":["inner critic","self talk","harsh voice"]},{"name":"Who's Talking in There?","passage":"inner-voices","card":null,"badges":["Reflection"],"category":"Self-Talk & Identity","aliases":["inner parts","voices in head"]},{"name":"Narrator Swap","passage":"inner-voices","card":"card-inner-voices-narrator-swap","badges":["Reflection"],"category":"Self-Talk & Identity","aliases":["narrator","self narrative"]},{"name":"Survival vs Chosen Identities","passage":"identity","card":"card-identity-survival-identities-vs-chosen-identities","badges":["Reflection"],"category":"Self-Talk & Identity","aliases":["who am i","identity"]},{"name":"Reconstruction Prompts","passage":"identity","card":"card-identity-reconstruction-prompts","badges":["Reflection"],"category":"Self-Talk & Identity","aliases":["rebuild self","identity work"]},{"name":"Know This Voice More Fully","passage":"deeper-inner-voices","card":null,"badges":["Deeper","Reflection"],"category":"Self-Talk & Identity","aliases":["parts deeper"]},{"name":"Explore the Versions of You","passage":"deeper-identity","card":null,"badges":["Deeper","Reflection"],"category":"Self-Talk & Identity","aliases":["versions self","different selves"]},{"name":"DEARMAN","passage":"interpersonal","card":"card-interpersonal-dearman-ask-for-what-you-need-or-say-no","badges":["Guided","Relationships"],"category":"Relationships, Grief & Context","aliases":["dbt asking","ask for what you need","boundaries","say no"]},{"name":"GIVE","passage":"interpersonal","card":"card-interpersonal-give-stay-connected-while-you-say-it","badges":["Guided","Relationships"],"category":"Relationships, Grief & Context","aliases":["dbt give","stay connected"]},{"name":"FAST","passage":"interpersonal","card":"card-interpersonal-fast-keep-your-self-respect-intact","badges":["Guided","Relationships"],"category":"Relationships, Grief & Context","aliases":["dbt fast","self respect"]},{"name":"Sort Through a Relationship","passage":"relationship","card":null,"badges":["Reflection","Relationships"],"category":"Relationships, Grief & Context","aliases":["relationship","relational","conflict","partner","family","friend","marriage","breakup","distance","drift","hurt","resentment","ambivalence","relationship strain","relational pain","someone in my life","mixed feelings about someone"]},{"name":"Understanding Your Grief","passage":"grief","card":null,"badges":["Reflection","Grief"],"category":"Relationships, Grief & Context","aliases":["grief loss","types of grief","grief jar","grief metaphor","ball in jar","jar metaphor"]},{"name":"It's Not Just You","passage":"systemic","card":null,"badges":["Reflection","Context"],"category":"Relationships, Grief & Context","aliases":["systemic context","society fault"]},{"name":"Name Where It Came From","passage":"deeper-systemic","card":null,"badges":["Deeper","Context"],"category":"Relationships, Grief & Context","aliases":["inherited shame","where it came from"]},{"name":"Living Your Values","passage":"values","card":null,"badges":["Reflection"],"category":"Relationships, Grief & Context","aliases":["values clarification"]},{"name":"Am I Living This","passage":"deeper-values","card":null,"badges":["Deeper","Reflection"],"category":"Relationships, Grief & Context","aliases":["values check","performing values"]},{"name":"Three Mind States","passage":"wise-mind","card":"card-wise-mind-three-mind-states","badges":["Reflection"],"category":"Self-Talk & Identity","aliases":["wise mind","emotion mind","rational mind","logic mind"],"searchOnly":true},{"name":"Access Wise Mind","passage":"wise-mind","card":"card-wise-mind-how-to-access-it-right-now","badges":["Reflection"],"category":"Self-Talk & Identity","aliases":["wise mind now"],"searchOnly":true},{"name":"Name the Voice","passage":"inner-voices","card":"card-inner-voices-name-the-voice","badges":["Reflection"],"category":"Self-Talk & Identity","aliases":["inner critic name","parts work"],"searchOnly":true},{"name":"Question the Voice","passage":"inner-voices","card":"card-inner-voices-question-it","badges":["Reflection"],"category":"Self-Talk & Identity","aliases":["challenge inner critic"],"searchOnly":true},{"name":"What Are Values?","passage":"values","card":"card-values-what-are-values","badges":["Reflection"],"category":"Relationships, Grief & Context","aliases":["define values"],"searchOnly":true},{"name":"Finding Your Values","passage":"values","card":"card-values-finding-yours-three-questions","badges":["Reflection"],"category":"Relationships, Grief & Context","aliases":["values clarification"],"searchOnly":true},{"name":"Values in Action","passage":"values","card":"card-values-values-in-action","badges":["Reflection","Action"],"category":"Relationships, Grief & Context","aliases":["live by values"],"searchOnly":true},{"name":"Signs You Can Influence This","passage":"control-check","card":"card-control-check-signs-you-can-influence-this","badges":["Reflection","Action"],"category":"Control, Action & Next Steps","aliases":["what i can change"],"searchOnly":true},{"name":"Signs This Is Outside Your Control","passage":"control-check","card":"card-control-check-signs-this-is-outside-your-control","badges":["Reflection"],"category":"Control, Action & Next Steps","aliases":["serenity prayer","let go"],"searchOnly":true},{"name":"What's Yours to Carry?","passage":"deeper-overwhelmed","card":"card-deeper-overwhelmed-step-2-whats-yours-to-carry","badges":["Deeper","Reflection"],"category":"Calm & Ground","aliases":["whats mine","burden audit"],"searchOnly":true},{"name":"What Would Help Most Right Now?","passage":"deeper-overwhelmed","card":"card-deeper-overwhelmed-step-3-what-would-help-most-right-now","badges":["Deeper","Reflection"],"category":"Calm & Ground","aliases":["help right now"],"searchOnly":true},{"name":"Emotion Myths Rewritten","passage":"deeper-emotions","card":"card-deeper-emotions-rewrite-the-myth","badges":["Deeper","Feelings"],"category":"Feelings & Emotions","aliases":["emotion myths","feelings are weakness"],"searchOnly":true},{"name":"What Is This Pattern Trying to Do?","passage":"deeper-distortions","card":"card-deeper-distortions-talk-back-to-the-thought","badges":["Deeper","Thoughts"],"category":"Thoughts & Loops","aliases":["challenge thought","talk back to the thought","trying to","pattern protect"],"searchOnly":true},{"name":"The Waiting Trap","passage":"hypoarousal","card":"card-hypoarousal-the-waiting-trap","badges":["Reflection"],"category":"Support & Connection","aliases":["motivation first","behavioral activation"],"searchOnly":true},{"name":"One Small Move Right Now","passage":"hypoarousal","card":"card-hypoarousal-one-small-move-right-now","badges":["Quick","Action"],"category":"Support & Connection","aliases":["body in motion"],"searchOnly":true},{"name":"Say What You Need","passage":"alone","card":"card-alone-say-what-you-need","badges":["Support"],"category":"Support & Connection","aliases":["asking for help script","what to say"],"searchOnly":true},{"name":"The Specific Loneliness","passage":"alone","card":"card-alone-the-specific-loneliness","badges":["Reflection","Support"],"category":"Support & Connection","aliases":["lonely even with people"],"searchOnly":true},{"name":"Sort Personal vs Systemic","passage":"systemic","card":"card-systemic-sort-whats-personal-vs-systemic","badges":["Reflection","Context"],"category":"Relationships, Grief & Context","aliases":["my fault systemic"],"searchOnly":true},{"name":"Message in a Bottle","passage":"message-bottle","card":null,"badges":["Reflection"],"category":"Self-Talk & Identity","aliases":["letter to future self","future me"],"searchOnly":true}];
+var TOOL_INDEX = [{"name":"Before the Next Move","passage":"one-beat","card":null,"badges":["Quick"],"category":"Calm & Ground","aliases":["pause","stop","beat","mid-action","before sending","before saying","before reacting","interrupt","slow down","one second","wait","step back","one beat","take a beat","hit pause","react","reactive","about to send","about to say","letting go","let go"]},{"name":"5-4-3-2-1 Grounding","passage":"overwhelmed","card":"card-overwhelmed-5-4-3-2-1-grounding","badges":["Quick","Body"],"category":"Calm & Ground","aliases":["five senses","senses grounding"]},{"name":"Paced Breathing","passage":"overwhelmed","card":"card-overwhelmed-paced-breathing","badges":["Quick","Body"],"category":"Calm & Ground","aliases":["breathing exercise","breath count"]},{"name":"The 6/10 Rule","passage":"overwhelmed","card":"card-overwhelmed-the-610-rule","badges":["Quick","Body"],"category":"Calm & Ground","aliases":["6 out of 10","intensity rule"]},{"name":"Physiological Sigh","passage":"body","card":"card-body-physiological-sigh","badges":["Quick","Body"],"category":"Calm & Ground","aliases":["double inhale","huberman"]},{"name":"Box Breathing","passage":"body","card":"card-body-box-breathing","badges":["Quick","Body"],"category":"Calm & Ground","aliases":["box breathing","square breathing","breathing box","breath hold","anger breathing","focus breathing","charged energy","4-4-4-4","tactical breathing"]},{"name":"Temperature Shift","passage":"body","card":"card-body-temperature-shift","badges":["Quick","Body"],"category":"Calm & Ground","aliases":["cold water","ice","tipp"]},{"name":"Feet on the Floor","passage":"body","card":"card-body-feet-on-the-floor","badges":["Quick","Body"],"category":"Calm & Ground","aliases":["grounding feet","earth"]},{"name":"Paired Muscle Relaxation","passage":"body","card":"card-body-paired-muscle-relaxation","badges":["Quick","Body"],"category":"Calm & Ground","aliases":["pmr","muscle tension"]},{"name":"Running on Empty","passage":"running-on-empty","card":null,"badges":["Quick","Body"],"category":"Calm & Ground","aliases":["body needs","depleted","exhausted","halt","hungry tired","tired hungry","burned out","fried","wiped","depletion","side check","sleep","sleep hygiene","sleep support","can't sleep","cant sleep","insomnia","tired but wired","not sleeping","rest","wind down","bedtime","getting ready for sleep"]},{"name":"What's Underneath the Overwhelm","passage":"deeper-overwhelmed","card":null,"badges":["Deeper","Reflection"],"category":"Calm & Ground","aliases":["overwhelmed underneath"]},{"name":"Riding out a strong urge","passage":"urge-check","card":null,"badges":["Guided","Urges"],"category":"Strong Urges","aliases":["urge","impulse","craving"]},{"name":"Urge Surfing","passage":"urge-surfing","card":null,"badges":["Guided","Urges"],"category":"Strong Urges","aliases":["surf urge","wave urge"]},{"name":"Buy Yourself 10 Minutes","passage":"urges","card":"card-urges-buy-yourself-10-minutes","badges":["Quick","Urges"],"category":"Strong Urges","aliases":["delay urge","ten minutes","wait it out","ride urge","buy 10 minutes"]},{"name":"Check the Basics First","passage":"urges","card":"card-urges-check-the-basics-first","badges":["Quick","Urges"],"category":"Strong Urges","aliases":["halt","hungry tired","self care urge"]},{"name":"Ride It Out","passage":"urges","card":"card-urges-ride-it-out","badges":["Quick","Urges"],"category":"Strong Urges","aliases":["wave urge","let it pass"]},{"name":"Name It to Tame It","passage":"emotions","card":"card-emotions-name-it-to-tame-it","badges":["Quick","Feelings"],"category":"Feelings & Emotions","aliases":["label feelings","affect labeling"]},{"name":"Emotions Come in Waves","passage":"emotions","card":"card-emotions-emotions-come-in-waves","badges":["Quick","Feelings"],"category":"Feelings & Emotions","aliases":["wave","emotional surge"]},{"name":"Guilt vs Shame","passage":"emotions","card":"card-emotions-guilt-vs-shame-an-important-difference","badges":["Quick","Feelings"],"category":"Feelings & Emotions","aliases":["i did bad","i am bad","shame"]},{"name":"Name What's Here","passage":"emotion-labeling","card":null,"badges":["Guided","Feelings"],"category":"Feelings & Emotions","aliases":["label emotion guided","emotion check in"]},{"name":"What Are Your Emotions Saying","passage":"deeper-emotions","card":null,"badges":["Deeper","Feelings"],"category":"Feelings & Emotions","aliases":["emotion message","feeling underneath"]},{"name":"Emotion → Need → Expression","passage":"deeper-emotions","card":"card-deeper-emotions-emotion-need-expression","badges":["Reflection","Feelings"],"category":"Feelings & Emotions","aliases":["nvc","needs","expression"]},{"name":"Work Through a Looping Thought","passage":"thought-spiral-guided","card":null,"badges":["Guided","Thoughts"],"category":"Thoughts & Loops","aliases":["spiral","rumination","looping thought"]},{"name":"Leaves on a Stream","passage":"thought-spiral","card":null,"badges":["Quick","Thoughts"],"category":"Thoughts & Loops","aliases":["leaves stream","act diffusion"],"external":"leaves-on-a-stream.html"},{"name":"Worry Postponement","passage":"thought-spiral","card":"card-thought-spiral-worry-postponement","badges":["Quick","Thoughts"],"category":"Thoughts & Loops","aliases":["worry time","postpone worry"]},{"name":"I'm Having the Thought That…","passage":"self-talk","card":"card-self-talk-im-having-the-thought-that","badges":["Quick","Thoughts"],"category":"Thoughts & Loops","aliases":[]},{"name":"The Friend Test","passage":"self-talk","card":"card-self-talk-the-friend-test","badges":["Quick","Thoughts"],"category":"Thoughts & Loops","aliases":[]},{"name":"Thought Diffusion","passage":"self-talk","card":"card-self-talk-thought-diffusion-lighten-the-grip","badges":["Quick","Thoughts"],"category":"Thoughts & Loops","aliases":[]},{"name":"11 Thinking Patterns","passage":"distortions","card":"card-distortions-11-patterns-worth-knowing","badges":["Reflection","Thoughts"],"category":"Thoughts & Loops","aliases":["cognitive distortions","thinking errors","all or nothing"]},{"name":"Thought Record","passage":"distortions","card":"card-distortions-thought-record-4-steps","badges":["Reflection","Thoughts"],"category":"Thoughts & Loops","aliases":["cbt thought record","evidence for against"]},{"name":"Decode a Thinking Pattern","passage":"deeper-distortions","card":null,"badges":["Deeper","Thoughts"],"category":"Thoughts & Loops","aliases":["decode distortion"]},{"name":"Control Check","passage":"control-check","card":null,"badges":["Reflection","Action"],"category":"Control, Action & Next Steps","aliases":["circle control"]},{"name":"Sort What's Yours to Carry","passage":"control-check-guided","card":null,"badges":["Guided","Action"],"category":"Control, Action & Next Steps","aliases":["mine not mine","control sort","circle of control"]},{"name":"One Small Thing","passage":"stuck","card":"card-stuck-one-small-thing","badges":["Quick","Action"],"category":"Control, Action & Next Steps","aliases":[]},{"name":"If/Then Plan","passage":"stuck","card":"card-stuck-ifthen-plan","badges":["Quick","Action"],"category":"Control, Action & Next Steps","aliases":["implementation intention","if this then that","plan ahead","if then","if-then"]},{"name":"What Can You Control?","passage":"control-check","card":null,"badges":["Reflection","Action"],"category":"Control, Action & Next Steps","aliases":["control influence"]},{"name":"Preparing for Something Difficult","passage":"anticipatory","card":null,"badges":["Guided","Action"],"category":"Control, Action & Next Steps","aliases":["before hard thing","anticipatory"]},{"name":"Low, Flat, or Shut Down","passage":"hypoarousal","card":null,"badges":["Guided","Support"],"category":"Support & Connection","aliases":["numb","flat","shutdown","freeze","dissociation"]},{"name":"Reach Out — One Person","passage":"alone","card":"card-alone-one-reach-right-now","badges":["Action","Support"],"category":"Support & Connection","aliases":["text someone","call someone","one person"]},{"name":"Hyperindependence in Recovery","passage":"alone","card":"card-alone-hyperindependence","badges":["Reflection","Support"],"category":"Support & Connection","aliases":["asking for help","do it alone"]},{"name":"If You Have No One to Call","passage":"alone","card":"card-alone-if-you-have-no-one-to-call","badges":["Support"],"category":"Support & Connection","aliases":["alone no one","no contacts","warmline"]},{"name":"Support Plan","passage":"support-plan-guided","card":null,"badges":["Guided","Support"],"category":"Support & Connection","aliases":["plan support","who to reach","list people"]},{"name":"ConnexOntario","passage":"alone","card":"card-alone-if-you-have-no-one-to-call","badges":["Support"],"category":"Support & Connection","aliases":["ontario helpline","addiction support ontario","mental health ontario"]},{"name":"Psychology Today","passage":"support-plan-guided","card":null,"badges":["Support"],"category":"Support & Connection","aliases":["therapist","therapy directory","find a therapist","professional support","psychology today canada"],"searchOnly":true},{"name":"Reframe the Inner Critic","passage":"self-talk-guided","card":null,"badges":["Guided","Thoughts"],"category":"Self-Talk & Identity","aliases":["inner critic","self talk","harsh voice"]},{"name":"Who's Talking in There?","passage":"inner-voices","card":null,"badges":["Reflection"],"category":"Self-Talk & Identity","aliases":["inner parts","voices in head"]},{"name":"Narrator Swap","passage":"inner-voices","card":"card-inner-voices-narrator-swap","badges":["Reflection"],"category":"Self-Talk & Identity","aliases":["narrator","self narrative"]},{"name":"Survival vs Chosen Identities","passage":"identity","card":"card-identity-survival-identities-vs-chosen-identities","badges":["Reflection"],"category":"Self-Talk & Identity","aliases":["who am i","identity"]},{"name":"Reconstruction Prompts","passage":"identity","card":"card-identity-reconstruction-prompts","badges":["Reflection"],"category":"Self-Talk & Identity","aliases":["rebuild self","identity work"]},{"name":"Know This Voice More Fully","passage":"deeper-inner-voices","card":null,"badges":["Deeper","Reflection"],"category":"Self-Talk & Identity","aliases":["parts deeper"]},{"name":"Explore the Versions of You","passage":"deeper-identity","card":null,"badges":["Deeper","Reflection"],"category":"Self-Talk & Identity","aliases":["versions self","different selves"]},{"name":"DEARMAN","passage":"interpersonal","card":"card-interpersonal-dearman-ask-for-what-you-need-or-say-no","badges":["Guided","Relationships"],"category":"Relationships, Grief & Context","aliases":["dbt asking","ask for what you need","boundaries","say no"]},{"name":"GIVE","passage":"interpersonal","card":"card-interpersonal-give-stay-connected-while-you-say-it","badges":["Guided","Relationships"],"category":"Relationships, Grief & Context","aliases":["dbt give","stay connected"]},{"name":"FAST","passage":"interpersonal","card":"card-interpersonal-fast-keep-your-self-respect-intact","badges":["Guided","Relationships"],"category":"Relationships, Grief & Context","aliases":["dbt fast","self respect"]},{"name":"Sort Through a Relationship","passage":"relationship","card":null,"badges":["Reflection","Relationships"],"category":"Relationships, Grief & Context","aliases":["relationship","relational","conflict","partner","family","friend","marriage","breakup","distance","drift","hurt","resentment","ambivalence","relationship strain","relational pain","someone in my life","mixed feelings about someone"]},{"name":"Understanding Your Grief","passage":"grief","card":null,"badges":["Reflection","Grief"],"category":"Relationships, Grief & Context","aliases":["grief loss","types of grief","grief jar","grief metaphor","ball in jar","jar metaphor"]},{"name":"It's Not Just You","passage":"systemic","card":null,"badges":["Reflection","Context"],"category":"Relationships, Grief & Context","aliases":["systemic context","society fault"]},{"name":"Name Where It Came From","passage":"deeper-systemic","card":null,"badges":["Deeper","Context"],"category":"Relationships, Grief & Context","aliases":["inherited shame","where it came from"]},{"name":"Living Your Values","passage":"values","card":null,"badges":["Reflection"],"category":"Relationships, Grief & Context","aliases":["values clarification"]},{"name":"Am I Living This","passage":"deeper-values","card":null,"badges":["Deeper","Reflection"],"category":"Relationships, Grief & Context","aliases":["values check","performing values"]},{"name":"Three Mind States","passage":"wise-mind","card":"card-wise-mind-three-mind-states","badges":["Reflection"],"category":"Self-Talk & Identity","aliases":["wise mind","emotion mind","rational mind","logic mind"],"searchOnly":true},{"name":"Access Wise Mind","passage":"wise-mind","card":"card-wise-mind-how-to-access-it-right-now","badges":["Reflection"],"category":"Self-Talk & Identity","aliases":["wise mind now"],"searchOnly":true},{"name":"Name the Voice","passage":"inner-voices","card":"card-inner-voices-name-the-voice","badges":["Reflection"],"category":"Self-Talk & Identity","aliases":["inner critic name","parts work"],"searchOnly":true},{"name":"Question the Voice","passage":"inner-voices","card":"card-inner-voices-question-it","badges":["Reflection"],"category":"Self-Talk & Identity","aliases":["challenge inner critic"],"searchOnly":true},{"name":"What Are Values?","passage":"values","card":"card-values-what-are-values","badges":["Reflection"],"category":"Relationships, Grief & Context","aliases":["define values"],"searchOnly":true},{"name":"Finding Your Values","passage":"values","card":"card-values-finding-yours-three-questions","badges":["Reflection"],"category":"Relationships, Grief & Context","aliases":["values clarification"],"searchOnly":true},{"name":"Values in Action","passage":"values","card":"card-values-values-in-action","badges":["Reflection","Action"],"category":"Relationships, Grief & Context","aliases":["live by values"],"searchOnly":true},{"name":"Signs You Can Influence This","passage":"control-check","card":"card-control-check-signs-you-can-influence-this","badges":["Reflection","Action"],"category":"Control, Action & Next Steps","aliases":["what i can change"],"searchOnly":true},{"name":"Signs This Is Outside Your Control","passage":"control-check","card":"card-control-check-signs-this-is-outside-your-control","badges":["Reflection"],"category":"Control, Action & Next Steps","aliases":["serenity prayer","let go"],"searchOnly":true},{"name":"What's Yours to Carry?","passage":"deeper-overwhelmed","card":"card-deeper-overwhelmed-step-2-whats-yours-to-carry","badges":["Deeper","Reflection"],"category":"Calm & Ground","aliases":["whats mine","burden audit"],"searchOnly":true},{"name":"What Would Help Most Right Now?","passage":"deeper-overwhelmed","card":"card-deeper-overwhelmed-step-3-what-would-help-most-right-now","badges":["Deeper","Reflection"],"category":"Calm & Ground","aliases":["help right now"],"searchOnly":true},{"name":"Emotion Myths Rewritten","passage":"deeper-emotions","card":"card-deeper-emotions-rewrite-the-myth","badges":["Deeper","Feelings"],"category":"Feelings & Emotions","aliases":["emotion myths","feelings are weakness"],"searchOnly":true},{"name":"What Is This Pattern Trying to Do?","passage":"deeper-distortions","card":"card-deeper-distortions-talk-back-to-the-thought","badges":["Deeper","Thoughts"],"category":"Thoughts & Loops","aliases":["challenge thought","talk back to the thought","trying to","pattern protect"],"searchOnly":true},{"name":"The Waiting Trap","passage":"hypoarousal","card":"card-hypoarousal-the-waiting-trap","badges":["Reflection"],"category":"Support & Connection","aliases":["motivation first","behavioral activation"],"searchOnly":true},{"name":"One Small Move Right Now","passage":"hypoarousal","card":"card-hypoarousal-one-small-move-right-now","badges":["Quick","Action"],"category":"Support & Connection","aliases":["body in motion"],"searchOnly":true},{"name":"Say What You Need","passage":"alone","card":"card-alone-say-what-you-need","badges":["Support"],"category":"Support & Connection","aliases":["asking for help script","what to say"],"searchOnly":true},{"name":"The Specific Loneliness","passage":"alone","card":"card-alone-the-specific-loneliness","badges":["Reflection","Support"],"category":"Support & Connection","aliases":["lonely even with people"],"searchOnly":true},{"name":"Sort Personal vs Systemic","passage":"systemic","card":"card-systemic-sort-whats-personal-vs-systemic","badges":["Reflection","Context"],"category":"Relationships, Grief & Context","aliases":["my fault systemic"],"searchOnly":true},{"name":"Message in a Bottle","passage":"message-bottle","card":null,"badges":["Reflection"],"category":"Self-Talk & Identity","aliases":["letter to future self","future me"],"searchOnly":true}];
 
 function tlibSearch(query) {
   var q = (query || '').toLowerCase().trim();
@@ -9474,6 +9480,7 @@ function tlibOpen(passageId, cardId) {
   // 'fresh' → 'used' after injecting, and 'used' → null on the next go()
   // (which is treated as a cross-link out of library context).
   try { sessionStorage.setItem('mm_from_library', 'fresh'); } catch(e) {}
+  if (window.MMNavigation) { MMNavigation.openTarget(passageId, cardId); return; }
   // Use existing go() to navigate
   if (typeof go === 'function') {
     go(passageId);
@@ -13813,7 +13820,7 @@ function cbRenderLandingCard() {
       last = null;
     }
     var skipRestore = ['triage','crisis-now'];
-    if (last && skipRestore.indexOf(last) < 0) {
+    if (!MMRoutes.parse(location.hash).explicit && last && skipRestore.indexOf(last) < 0) {
       var triage = document.getElementById('triage');
       if (triage) {
         var wb = document.createElement('div');
@@ -16970,6 +16977,8 @@ var _pageEntryHooks = {
       _elMode = (mode === 'checkin') ? 'checkin' : 'distress';
       if (mode) sessionStorage.removeItem('mm_el_mode');
     } catch(e) { _elMode = 'distress'; }
+    // Explicit routes also work when browser storage is unavailable.
+    if (window.MMNavigation && MMNavigation.entryMode()) _elMode = MMNavigation.entryMode();
 
     // ── BREADCRUMB MODE-SWAP ──────────────────────────────────────────────
     // The breadcrumb is the first thing a screen reader announces and the
@@ -17084,7 +17093,7 @@ var _pageEntryHooks = {
     // elBuildCheckinFamilyGrid instead of populating the distress grid.
     _elTextures = [];
     _elEmotions = [];
-    setTimeout(function() { elBuildTextureGrid(); }, 50);
+    mmEntryLater(function() { elBuildTextureGrid(); }, 50);
   },
   'small-move': function() {
     // Stage 3.5: clear the NRM container on each entry, then rebuild the
@@ -17109,7 +17118,7 @@ var _pageEntryHooks = {
       var bottleBtn = document.getElementById('small-move-to-bottle');
       if (bottleBtn) bottleBtn.removeAttribute('data-move-text');
     } catch(e) {}
-    setTimeout(function() {
+    mmEntryLater(function() {
       try { if (typeof nrmShow === 'function') nrmShow('small-move-nrm'); } catch(e) {}
     }, 50);
   },
@@ -17169,18 +17178,18 @@ var _pageEntryHooks = {
     if (typeof _distSelected !== 'undefined') {
       _distSelected.length = 0;
     }
-    setTimeout(function() { if (typeof distBuildChips === 'function') distBuildChips(); }, 80);
+    mmEntryLater(function() { if (typeof distBuildChips === 'function') distBuildChips(); }, 80);
     // Stage 2 coherence pass: reset outcome surfaces on every entry.
     _resetOutcomeBlocks('distortions');
   },
   'deeper-inner-voices': function() {
     // Reset and rebuild voice explorer chips
-    setTimeout(function() { if (typeof divBuild === 'function') divBuild(); }, 80);
+    mmEntryLater(function() { if (typeof divBuild === 'function') divBuild(); }, 80);
   },
   'support-plan-guided': function() {
     // Reset to step 1 on re-entry
     try { _clearGuidedStepHistory && _clearGuidedStepHistory('support-plan-guided'); } catch(e) {}
-    setTimeout(function() { if (typeof spgReset === 'function') spgReset(); }, 50);
+    mmEntryLater(function() { if (typeof spgReset === 'function') spgReset(); }, 50);
   },
   'urges': function() {
     // Hide the slow-down settling block on re-entry (only shown via urgeEnterSlow)
@@ -17204,9 +17213,9 @@ var _pageEntryHooks = {
     var cardId = 'card-urges-' + focus;
     var raf = (typeof requestAnimationFrame === 'function')
       ? requestAnimationFrame
-      : function(cb) { return setTimeout(cb, 16); };
+      : function(cb) { return mmEntryLater(cb, 16); };
     raf(function() {
-      setTimeout(function() {
+      mmEntryLater(function() {
         var el = document.getElementById(cardId);
         if (!el) return;
         try {
@@ -17218,7 +17227,7 @@ var _pageEntryHooks = {
         el.classList.remove('search-highlight');
         void el.offsetWidth;
         el.classList.add('search-highlight');
-        setTimeout(function() { el.classList.remove('search-highlight'); }, 1700);
+        mmEntryLater(function() { el.classList.remove('search-highlight'); }, 1700);
       }, 60);
     });
   },
@@ -17311,7 +17320,7 @@ var _pageEntryHooks = {
       }
     } catch(e) {}
     // Surface pattern reflection if conditions are met
-    setTimeout(function() {
+    mmEntryLater(function() {
       if (typeof mmShouldShowReflection === 'function' && mmShouldShowReflection()) {
         mmShowReflection();
       }
@@ -17953,7 +17962,7 @@ _pageEntryHooks['sort-through-reflect'] = function() {
   // most contextually meaningful place. Delayed via setTimeout to
   // ensure DOM is rendered.
   if (camefromReturnLink) {
-    setTimeout(function() {
+    mmEntryLater(function() {
       var mirror = document.getElementById('st-reflect-mirror');
       if (mirror) {
         // Make focusable temporarily if it isn't already.
@@ -18966,6 +18975,8 @@ function ipResetOutcome() {
 // Shared by goBack(). go() handles its own side-effects inline.
 function _activatePassage(id) {
   id = resolveRetiredPassage(id);
+  var resolved = document.getElementById(id);
+  if (!resolved || !resolved.classList.contains('passage')) id = 'triage';
   // Mirror the blur from go() — _activatePassage is the back-navigation
   // path and needs the same sticky-focus release on touch devices.
   try {
@@ -19268,6 +19279,8 @@ function goBack(fallback) {
     _clearGuidedStepHistory(_currentPage);
   }
 
+  if (window.MMNavigation) { MMNavigation.back(fallback); return; }
+
   // 2. Standard passage-level back: pop _navHistory, else use fallback.
   if (_navHistory.length > 0) {
     var prev = _navHistory.pop();
@@ -19466,6 +19479,13 @@ document.addEventListener('keydown', function(e) {
     if (passage.classList) passage.classList.add('passage-library-context');
   }
 
+  // Card-only browser traversal updates chrome without rerunning exercise resets.
+  window.mmApplyLibraryContext = function(id, enabled) {
+    cleanupAll();
+    if (enabled) { writeFlag('used'); injectBackToLibrary(id); }
+    else clearFlag();
+  };
+
   var origGo = window.go;
   window.go = function(id) {
     // Capture flag state BEFORE navigation so we can decide on the
@@ -19488,7 +19508,7 @@ document.addEventListener('keydown', function(e) {
 
     // After navigation, evaluate the state machine. Deferred so the
     // newly-active passage is in the DOM.
-    setTimeout(function() {
+    mmEntryLater(function() {
       var currFlag = readFlag();
       if (prevFlag === 'fresh' && currFlag === 'fresh') {
         // Direct-from-library landing. Inject and transition to 'used'.
@@ -19533,7 +19553,7 @@ document.addEventListener('keydown', function(e) {
   var origGo = window.go;
   window.go = function(id) {
     origGo(id);
-    setTimeout(function() {
+    mmEntryLater(function() {
       var passage = document.getElementById(id);
       if (!passage) return;
       var label = passage.getAttribute('aria-label') || id;
@@ -19569,7 +19589,7 @@ document.addEventListener('keydown', function(e) {
     id = resolveRetiredPassage(id);
     origGo(id);
     try {
-      if (id && !_MM_OPEN_SKIP[id]) {
+      if (id && !_MM_OPEN_SKIP[id] && (!window.MMNavigation || !MMNavigation.isTraversal())) {
         var bucket = mmAnalyticsBucket(id);
         var ctx = _mmAnalyticsContext;
         // Deeper pages are always reached via a "go deeper" link from a
@@ -20070,5 +20090,6 @@ function spgReset() {
 }
 
 </script>
+<script src="navigation.js"></script>
 </body>
 </html>
