@@ -2767,8 +2767,6 @@
       <button class="restart-btn" onclick="go('triage')"><span aria-hidden="true">↩</span> I'm feeling a bit safer — take me back</button>
     </div>
 
-    <!-- ═══════════════════════════════ STRUGGLING ZONE ═══════════════════════════════ -->
-    <!-- STRUGGLING-NEW — Screen 2 intent routing -->
 <!-- HYPOAROUSAL -->
     <div class="passage passage-regulatory" id="hypoarousal" role="group" aria-label="Low, flat, or shut down">
       <p class="passage-breadcrumb">Body <span>→</span> Low or shut down</p>
@@ -2839,76 +2837,9 @@
       <button class="back-btn" onclick="goBack('triage')">← Back</button>
     </div>
 
-        <div class="passage passage-regulatory" id="struggling-new" role="group" aria-label="What would feel most useful right now?">
-      <p class="passage-breadcrumb">Having a hard time <span>→</span> What would help</p>
-      <p class="prompt">What would feel most useful right now?</p>
 
-      <div class="grounding-anchor">
-        <p>Press your feet into the floor. One slow breath. You're here now.</p>
-      </div>
 
-      <div class="choices">
-        <button class="choice" onclick="go('struggling')">I'm overwhelmed and need to slow down</button>
-        <button class="choice" onclick="go('hypoarousal')">I feel low, flat, numb, or shut down</button>
-        <button class="choice" onclick="go('thoughts')">I want to get curious about what's happening</button>
-        <button class="choice" onclick="go('soft-landing')">I don't know where to start</button>
-      </div>
 
-      <button class="back-btn" onclick="goBack('triage')">← Back</button>
-    </div>
-
-    <!-- SOFT LANDING — gentle on-ramp for uncertain arrivals -->
-    <div class="passage passage-regulatory" id="soft-landing" role="group" aria-label="A place to start">
-      <p class="passage-breadcrumb">Having a hard time <span>→</span> Start here</p>
-
-      <div style="padding:18px 0 20px 0;">
-        <p style="font-size:1.15rem;font-weight:500;color:var(--accent);line-height:1.6;margin-bottom:4px;">You don't have to know what's wrong.</p>
-        <p style="font-size:1.15rem;font-weight:500;color:var(--accent);line-height:1.6;margin-bottom:12px;">You just have to be here.</p>
-        <p style="font-size:0.85rem;color:var(--muted);">No pressure to choose the right thing. Start wherever feels easiest.</p>
-      </div>
-      <hr class="divi">
-
-      <div class="choices">
-        <button class="choice" onclick="go('overwhelmed')">My body needs to settle first</button>
-        <button class="choice" onclick="go('emotions')">I don't know what I'm feeling — I just need to name something</button>
-        <button class="choice" onclick="go('distortions')">I want to read something that might help</button>
-        <button class="choice" onclick="go('message-bottle')">I just need to put something down somewhere</button>
-      </div>
-
-      <button class="choice" onclick="go('alone')">I feel like nobody gets what I'm going through</button>
-      <button class="back-btn" onclick="goBack('struggling-new')">← Back</button>
-    </div>
-
-    <div class="passage passage-regulatory" id="struggling" role="group" aria-label="What feels closest right now?">
-            <p class="passage-breadcrumb">Having a hard time <span>→</span> What feels closest</p>
-      <p class="prompt">What feels closest right now?</p>
-
-      <div class="grounding-anchor">
-        <p>Press your feet into the floor. One slow breath. You're here now.</p>
-      </div>
-
-      <p class="section-label">If you need to settle something fast:</p>
-      <div class="choices">
-        <button class="choice" onclick="go('urge-check')">I want to do something I know I'll regret.</button>
-        <button class="choice" onclick="go('overwhelmed')">I can't breathe. Everything is too much at once.</button>
-        <button class="choice" onclick="go('body')">My body won't calm down — I'm wound up or activated.</button>
-      </div>
-
-      <p class="section-label" style="margin-top:14px;">If there's something to sort through:</p>
-      <div class="choices">
-        <button class="choice" onclick="go('emotions')">Something is sitting on my chest and won't move — I want to name it.</button>
-        <button class="choice" onclick="go('stuck')">I keep going in circles. I don't know which way to turn.</button>
-        <button class="choice" onclick="go('alone')">Nobody gets it. I'm completely on my own with this.</button>
-      </div>
-
-      <div class="safety-note">
-        If you're having thoughts that life isn't worth living, please reach out. <strong>Call or text 988 any time.</strong>
-      </div>
-
-      <button class="back-btn" onclick="goBack('struggling-new')">← Back</button>
-    </div>
-
-    <!-- ═══════════════════════════════ THOUGHTS ZONE ═══════════════════════════════ -->
 <!-- GRIEF -->
     <!-- ═══════════════════════════ GRIEF — ENTRY FORK ═══════════════════════════
          Phase 1. Permission, not classification. Doorways are places to
@@ -3621,47 +3552,7 @@
       <button class="back-btn" onclick="goBack('sort-through')" style="margin-top:20px;">← Back</button>
     </div>
 
-        <div class="passage passage-regulatory" id="thoughts" role="group" aria-label="What is happening in your thinking?">
-            <p class="passage-breadcrumb">Having a hard time <span>→</span> Get curious</p>
-      <p class="prompt">What's pulling at you?</p>
 
-      <div class="grounding-anchor">
-        <p>Press your feet into the floor. One slow breath. You're here now.</p>
-      </div>
-
-      <p class="section-label">Not sure yet? Start here:</p>
-      <div class="choices" style="margin-bottom:20px;">
-        <button class="choice" onclick="go('emotion-labeling')" style="border-color:var(--accent);background:rgba(45,90,107,0.04);">Help me name what I'm feeling first</button>
-      </div>
-
-      <p class="section-label">Or if you have a sense of what's pulling at you:</p>
-      <div class="choices">
-        <button class="choice" onclick="go('thought-spiral')">I can't stop thinking about this. It just keeps coming back.</button>
-        <button class="choice" onclick="go('self-talk')">The voice in my head is being really cruel to me right now.</button>
-        <button class="choice" onclick="go('distortions')">My mind is telling me a story that feels completely true.</button>
-        <button class="choice" onclick="go('wise-mind')">Maybe there's another way to see this.</button>
-        <button class="choice" onclick="go('grief')">I'm trying to make sense of something I lost.</button>
-      </div>
-
-      <button class="back-btn" onclick="goBack('triage')">← Back</button>
-    </div>
-
-    <!-- ═══════════════════════════════ GROWING ZONE ═══════════════════════════════ -->
-    <div class="passage passage-reflective" id="growing" role="group" aria-label="What would you like to explore?">
-            <p class="passage-breadcrumb">Understand myself <span>→</span> What to explore?</p>
-      <p class="prompt">That's a good place to be.</p>
-      <p class="sub-prompt">What would you like to explore?</p>
-
-      <div class="choices">
-        <button class="choice" onclick="go('values')">What matters most to me right now</button>
-        <button class="choice" onclick="go('inner-voices')">The voices in my head — understanding them</button>
-        <button class="choice" onclick="go('control-check')">What I can and can't control</button>
-        <button class="choice" onclick="go('identity')">Who I am and who I'm becoming</button>
-        <button class="choice" onclick="go('systemic')">The bigger picture — it's not just me</button>
-      </div>
-
-      <button class="back-btn" onclick="goBack('triage')">← Back</button>
-    </div>
 
     <!-- ═══════════════════════════════ SORT THROUGH ═══════════════════════════════
          Stage 2: a sense-making surface with multi-select chips.
@@ -8292,10 +8183,17 @@ function toggleHowItWorks() {
 }
 
 // ── NAVIGATION ──────────────────────────────────────────────────
+// Retired menus can survive in old session pointers or saved toolbox data.
+// Normalize only these IDs; all current routing keeps its existing behavior.
+function resolveRetiredPassage(id) {
+  var retired = ['struggling-new', 'soft-landing', 'struggling', 'thoughts', 'growing'];
+  return retired.indexOf(id) >= 0 ? 'triage' : id;
+}
+
 var _currentPage = 'triage';
 var _navHistory = []; // navigation history stack for back button
 
-var _calmPages = ['growing','values','inner-voices','control-check','identity',
+var _calmPages = ['values','inner-voices','control-check','identity',
   'systemic','about','tools-index','deeper-overwhelmed','deeper-emotions','small-move'];
 
 // ── VALUES ENTRY-CONTEXT ─────────────────────────────────────────
@@ -8497,7 +8395,7 @@ var _MM_BUCKET_MAP = {
   'control-check-guided': 'control_action', 'small-move': 'control_action',
   'wise-mind': 'control_action',
   // values
-  'values': 'values', 'growing': 'values',
+  'values': 'values',
   // identity
   'identity': 'identity',
   // wider context
@@ -8565,12 +8463,12 @@ function applyHeaderImageForPassage(id) {
     if (headerDiv) {
       headerDiv.style.display = id === 'crisis-now' ? 'none' : '';
     }
-    var mapPages = ['emotion-labeling','urge-surfing','urge-check','urges-settle','struggling','struggling-new','soft-landing','hypoarousal','thoughts','overwhelmed','body','running-on-empty','urges','emotions',
+    var mapPages = ['emotion-labeling','urge-surfing','urge-check','urges-settle','hypoarousal','overwhelmed','body','running-on-empty','urges','emotions',
                     'stuck','alone','thought-spiral','self-talk','distortions',
                     'deeper-overwhelmed','deeper-emotions','deeper-distortions',
                     'sort-through','urge-safer-first',
                     'support-plan-guided','one-beat'];
-    var mirrorPages = ['growing','interpersonal','thought-spiral-guided','self-talk-guided','control-check-guided','anticipatory','values','inner-voices','critic-origin','control-check','identity',
+    var mirrorPages = ['interpersonal','thought-spiral-guided','self-talk-guided','control-check-guided','anticipatory','values','inner-voices','critic-origin','control-check','identity',
                        'systemic','deeper-values','deeper-inner-voices',
                        'deeper-identity','deeper-systemic','message-bottle',
                        'grief','grief-death','grief-death-died','grief-death-dying',
@@ -8620,6 +8518,7 @@ function applyHeaderImageForPassage(id) {
 }
 
 function go(id) {
+  id = resolveRetiredPassage(id);
   // Release sticky :hover/:focus on whichever button just triggered this
   // navigation. On touch devices the previously-tapped button retains its
   // hover style until something else takes focus; explicitly blurring here
@@ -10839,7 +10738,7 @@ function saveLog(entry) {
 
 function logVisit(pageId) {
   // Only log skill passages, not menus
-  var skipPages = ['triage','crisis-now','struggling','thoughts','growing',
+  var skipPages = ['triage','crisis-now',
     'anticipatory','tools-index','about'];
   if (skipPages.indexOf(pageId) >= 0) return;
   saveLog({ pageId: pageId, result: null });
@@ -10993,7 +10892,7 @@ try {
 } catch(e) {}
 
 function showVisitHint(id) {
-  var skipPages = ['triage','crisis-now','struggling','thoughts','growing',
+  var skipPages = ['triage','crisis-now',
     'anticipatory','tools-index','about','crisis-bar','small-move'];
   if (skipPages.indexOf(id) >= 0) return;
   _visitCounts[id] = (_visitCounts[id] || 0) + 1;
@@ -11037,7 +10936,7 @@ function buildSessionSummary() {
     'deeper-inner-voices':'knowing your inner voices',
     'deeper-identity':'exploring versions of yourself'
   };
-  var skipPages = ['triage','crisis-now','struggling','thoughts','growing',
+  var skipPages = ['triage','crisis-now',
     'anticipatory','tools-index','about','message-bottle'];
   var visited = [], seen = {};
   session.forEach(function(l) {
@@ -13909,6 +13808,10 @@ function cbRenderLandingCard() {
   }
   try {
     var last = sessionStorage.getItem('mm_last');
+    if (resolveRetiredPassage(last) !== last) {
+      sessionStorage.removeItem('mm_last');
+      last = null;
+    }
     var skipRestore = ['triage','crisis-now'];
     if (last && skipRestore.indexOf(last) < 0) {
       var triage = document.getElementById('triage');
@@ -16218,11 +16121,8 @@ function _elCheckinBuildPrefillLines() {
 }
 
 // Mode-aware Back button for the emotion-labeling passage.
-// Distress mode entries originate from "Having a hard time" → thoughts →
-// emotion-labeling, so the historical fallback is 'thoughts'. Check-in
-// mode entries originate from the triage card, but triage is in the
-// _skipHistory list inside go(), so _navHistory is empty on a fresh
-// check-in entry. This helper picks the correct fallback per mode.
+// Use the current Sort through doorway as the distress-mode fallback.
+// Check-in starts at triage, which is excluded from navigation history.
 // Step-history (within-passage Back) is honoured first via goBack().
 function elBack() {
   var fallback = (_elMode === 'checkin') ? 'triage' : 'sort-through';
@@ -19065,6 +18965,7 @@ function ipResetOutcome() {
 // Applies passage-activation side-effects without pushing to _navHistory.
 // Shared by goBack(). go() handles its own side-effects inline.
 function _activatePassage(id) {
+  id = resolveRetiredPassage(id);
   // Mirror the blur from go() — _activatePassage is the back-navigation
   // path and needs the same sticky-focus release on touch devices.
   try {
@@ -19645,15 +19546,14 @@ document.addEventListener('keydown', function(e) {
 // ── ANALYTICS: open/ events ──────────────────────────────────────────────
 // Outermost go() wrapper — added last so it sees the final navigation.
 // Emits open/{bucket}/from_{context} for tracked tool/page passages only.
-// Router / menu passages (triage, struggling, sort-through, etc.) and the
+// Router / menu passages (triage, sort-through, etc.) and the
 // utility passages (tools-index, my-toolbox, about, check-in-archive) are
 // skipped — they are not "tools" and an open event for them would be
 // noise. After each navigation the entry-context is reset to 'direct' so
 // a stale context can't leak into an untracked subsequent navigation.
 (function() {
   var _MM_OPEN_SKIP = {
-    'triage': 1, 'crisis-now': 1, 'struggling': 1, 'struggling-new': 1,
-    'soft-landing': 1, 'thoughts': 1, 'growing': 1, 'sort-through': 1,
+    'triage': 1, 'crisis-now': 1, 'sort-through': 1,
     'sort-through-reflect': 1, 'tools-index': 1, 'my-toolbox': 1,
     'about': 1, 'check-in-archive': 1
   };
@@ -19666,6 +19566,7 @@ document.addEventListener('keydown', function(e) {
   var _MM_CONTEXT_PASSTHROUGH = { 'sort-through': 1, 'sort-through-reflect': 1 };
   var origGo = window.go;
   window.go = function(id) {
+    id = resolveRetiredPassage(id);
     origGo(id);
     try {
       if (id && !_MM_OPEN_SKIP[id]) {
