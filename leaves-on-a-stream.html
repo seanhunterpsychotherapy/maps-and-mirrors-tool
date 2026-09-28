@@ -120,6 +120,12 @@
     transform: translateY(-100%); pointer-events: none;
   }
   .bank-trees.right { left: auto; right: 5%; }
+  .foreground-plants {
+    position: absolute; bottom: 0; left: 0; z-index: 11;
+    width: clamp(100px, 17vw, 195px); height: auto;
+    pointer-events: none;
+  }
+  .foreground-plants.right { left: auto; right: 0; width: clamp(80px, 13vw, 150px); }
 
   /* The leaves layer covers the same coordinate space, on top of the stream
      but beneath the near-bank/grass layers (so leaves can disappear behind
@@ -554,87 +560,57 @@
     <!-- ── Layer 4: leaves drift here, on the water surface ── -->
     <div class="leaves" id="leaves" aria-live="polite" aria-relevant="additions"></div>
 
-    <!-- ── Layer 5: near (foreground) bank — the viewer's vantage ── -->
+    <!-- Foreground: a clean outlined bank with rounded stones and leafy reeds. -->
     <div class="scene-layer" style="z-index:10;" aria-hidden="true">
       <svg viewBox="0 0 1200 700" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="nearBankGrad" x1="0" y1="0" x2="0.4" y2="1">
-            <stop offset="0"   stop-color="#b7c77e"/>
-            <stop offset="0.5" stop-color="#9bb169"/>
-            <stop offset="1"   stop-color="#77975e"/>
-          </linearGradient>
-          <linearGradient id="grassGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#8e9b6e"/>
-            <stop offset="1" stop-color="#5d6a42"/>
-          </linearGradient>
-          <radialGradient id="bankWarmth" cx="0.18" cy="0.95" r="0.6">
-            <stop offset="0" stop-color="#a8b282" stop-opacity="0.55"/>
-            <stop offset="1" stop-color="#a8b282" stop-opacity="0"/>
-          </radialGradient>
-        </defs>
-
-        <!-- The foreground bank — a slim strip along the very bottom so the stream fills the frame. -->
-        <path d="M0,656
-                 C 200,648 400,668 600,660
-                 C 800,652 1000,670 1200,662
-                 L1200,700 L0,700 Z"
-              fill="url(#nearBankGrad)"/>
-        <path d="M0,656
-                 C 200,648 400,668 600,660
-                 C 800,652 1000,670 1200,662
-                 L1200,700 L0,700 Z"
-              fill="url(#bankWarmth)"/>
-
-        <!-- Pebbles scattered along the (now horizontal) water's edge -->
-        <g opacity="0.85">
-          <ellipse cx="60"   cy="662" rx="22" ry="5" fill="#8e8a6c"/>
-          <ellipse cx="170"  cy="658" rx="24" ry="6" fill="#a09c7e"/>
-          <ellipse cx="290"  cy="666" rx="20" ry="5" fill="#928c6e"/>
-          <ellipse cx="410"  cy="664" rx="22" ry="5" fill="#a8a280"/>
-          <ellipse cx="540"  cy="660" rx="20" ry="5" fill="#928c6e"/>
-          <ellipse cx="680"  cy="666" rx="22" ry="5" fill="#a8a280"/>
-          <ellipse cx="820"  cy="662" rx="18" ry="5" fill="#8e8a6c"/>
-          <ellipse cx="950"  cy="666" rx="20" ry="5" fill="#a8a280"/>
-          <ellipse cx="1080" cy="662" rx="18" ry="5" fill="#928c6e"/>
+        <path d="M0 656C200 648 400 668 600 660S1000 670 1200 662V700H0Z"
+              fill="#95b877" stroke="#64885a" stroke-width="2"/>
+        <path d="M0 659C200 651 400 671 600 663S1000 673 1200 665"
+              fill="none" stroke="#ddcf9e" stroke-width="5"/>
+        <path d="M0 685Q180 671 340 689T680 687T1020 689T1200 681V700H0Z" fill="#7fa366"/>
+        <g fill="#5f8c59" stroke="#52764e" stroke-width="1.2" stroke-linejoin="round">
+          <path d="M260 694q-4-15-12-20q15 4 17 14q2-17 12-22q-6 17-5 28Z"/>
+          <path d="M480 695q-5-14-13-18q14 1 17 12q4-19 14-24q-7 19-6 30Z"/>
+          <path d="M745 693q-5-16-13-19q14 2 17 13q3-14 12-20q-4 16-4 26Z"/>
+          <path d="M943 695q-5-13-13-18q15 2 17 12q2-17 12-22q-5 18-5 28Z"/>
         </g>
-
-        <!-- Grass tufts dotted across the bank, just below the shoreline -->
-        <g stroke="#4d5a36" stroke-width="1" fill="none" opacity="0.55">
-          <path d="M40  686 q-2 -16 0 -28 M48 688 q-1 -18 4 -30 M56 688 q1 -20 7 -30"/>
-          <path d="M210 690 q-2 -16 0 -28 M218 692 q-1 -18 4 -28"/>
-          <path d="M360 688 q-2 -14 0 -24 M368 690 q-1 -16 4 -26 M376 690 q1 -18 7 -26"/>
-          <path d="M520 692 q-2 -14 0 -22 M528 694 q-1 -16 4 -22"/>
-          <path d="M700 688 q-2 -12 0 -20 M708 690 q-1 -14 4 -20 M716 690 q1 -16 7 -22"/>
-          <path d="M880 692 q-2 -12 0 -18 M888 694 q-1 -14 4 -20"/>
-          <path d="M1050 688 q-2 -14 0 -20 M1058 690 q-1 -16 4 -20 M1066 690 q1 -16 7 -22"/>
-        </g>
-
-        <!-- Tall reeds in the immediate foreground (left edge, closest to viewer) -->
-        <g fill="#4a5733">
-          <g class="reed" style="transform-origin: 30px 700px;">
-            <path d="M26 700 q-3 -120 0 -200 q1 -10 4 -16 q1 12 -1 26 q-2 30 -3 190 z"/>
-          </g>
-          <g class="reed r2" style="transform-origin: 70px 700px;">
-            <path d="M66 700 q-2 -110 0 -180 q1 -8 4 -14 q1 10 -1 22 q-2 28 -3 172 z"/>
-          </g>
-          <g class="reed r3" style="transform-origin: 110px 700px;">
-            <path d="M106 700 q-3 -130 0 -210 q1 -10 4 -16 q1 12 -1 26 q-2 30 -3 200 z"/>
-          </g>
-          <g class="reed" style="transform-origin: 160px 700px; animation-delay: -3s;">
-            <path d="M156 700 q-2 -100 0 -160 q1 -8 4 -14 q1 10 -1 22 q-2 28 -3 152 z"/>
-          </g>
-        </g>
-
-        <!-- Subtle shadow cast by the near bank onto the water along the edge -->
-        <path d="M0,652
-                 C 200,644 400,664 600,656
-                 C 800,648 1000,666 1200,658
-                 L1200,670
-                 C 1000,678 800,660 600,668
-                 C 400,676 200,656 0,664 Z"
-              fill="#3d4a30" opacity="0.18"/>
       </svg>
     </div>
+    <!-- Separate view boxes keep the foreground details rounded on mobile. -->
+    <svg class="foreground-plants" viewBox="0 0 195 180" aria-hidden="true">
+      <g stroke-linecap="round" stroke-linejoin="round">
+        <g class="reed" style="transform-origin: 43px 171px;">
+          <path d="M43 171Q44 103 34 35" fill="none" stroke="#55734a" stroke-width="4"/>
+          <path d="M42 128Q10 112 13 77Q39 91 42 128Z" fill="#739d60" stroke="#4f774d" stroke-width="1.8"/>
+          <path d="M42 103Q65 94 70 66Q45 72 42 103Z" fill="#92b778" stroke="#527b50" stroke-width="1.8"/>
+          <path d="M33 39L30 18" stroke="#795d40" stroke-width="10"/>
+          <path d="M30 32L28 20" stroke="#b28b5d" stroke-width="3"/>
+        </g>
+        <g class="reed r2" style="transform-origin: 77px 171px;">
+          <path d="M77 171Q81 117 87 65" fill="none" stroke="#55734a" stroke-width="4"/>
+          <path d="M80 135Q59 125 54 99Q80 105 80 135Z" fill="#8eaf70" stroke="#527b50" stroke-width="1.8"/>
+          <path d="M81 123Q108 119 116 91Q91 95 81 123Z" fill="#6b965c" stroke="#527b50" stroke-width="1.8"/>
+          <path d="M87 67L90 48" stroke="#876442" stroke-width="9"/>
+          <path d="M87 61L89 49" stroke="#bc9566" stroke-width="2.5"/>
+        </g>
+        <path d="M16 180Q19 147 4 128Q34 145 33 169Q34 143 49 133Q43 162 47 180Z" fill="#658f56" stroke="#4d754c" stroke-width="2"/>
+        <path d="M82 173Q86 151 99 147Q115 143 124 158Q139 157 144 171Q117 183 82 173Z" fill="#b8b29a" stroke="#7e806b" stroke-width="2"/>
+        <path d="M93 157Q106 149 115 158" fill="none" stroke="#e1dcc4" stroke-width="3"/>
+        <path d="M130 180q2-23-10-37q21 8 23 28q3-27 20-35q-11 24-10 44Z" fill="#7ca366" stroke="#527b50" stroke-width="2"/>
+      </g>
+    </svg>
+    <svg class="foreground-plants right" viewBox="0 0 150 120" aria-hidden="true">
+      <g stroke-linejoin="round" stroke-linecap="round">
+        <g class="reed r3" style="transform-origin: 117px 119px;">
+          <path d="M117 119Q117 82 127 48" fill="none" stroke="#527b50" stroke-width="3"/>
+          <path d="M119 94Q91 89 88 66Q113 70 119 94Z" fill="#8bb171" stroke="#527b50" stroke-width="1.8"/>
+          <path d="M123 77Q142 72 146 49Q126 55 123 77Z" fill="#729b60" stroke="#527b50" stroke-width="1.8"/>
+        </g>
+        <path d="M32 111Q31 96 45 92Q47 76 64 80Q78 80 82 97Q96 97 98 111Q67 124 32 111Z" fill="#a4ae98" stroke="#71826a" stroke-width="2"/>
+        <path d="M53 89q11-6 19 3" fill="none" stroke="#d6ddc6" stroke-width="3"/>
+        <path d="M8 120q3-21-5-34q18 8 18 25q4-26 20-32q-11 20-11 41Z M102 120q1-21-9-33q18 8 20 24q6-22 20-29q-9 20-8 38Z" fill="#739d60" stroke="#527b50" stroke-width="2"/>
+      </g>
+    </svg>
 
     <!-- Prompts (top, so they don't sit on the water) -->
     <div class="prompt-layer">
@@ -724,10 +700,10 @@
   ];
 
   const LEAF_SVGS = [
-    `<svg viewBox="0 0 86 56"><path class="outline" d="M10 29C25 8 61 7 81 27C63 48 29 46 10 29Z" fill="var(--leaf-a)"/><path class="midrib" d="M10 29Q45 24 80 27"/><path class="veins" d="M25 27l9-10m7 9 10-12m5 12 9-8m-35 9 10 11m10-12 11 10"/><path class="shine" d="M20 24q15-12 30-10"/><path class="stem" d="M12 29Q5 31 2 38"/></svg>`,
-    `<svg viewBox="0 0 86 56"><path class="outline" d="M10 31C23 7 57 5 79 23C79 39 45 50 10 31Z" fill="var(--leaf-b)"/><path class="midrib" d="M11 31Q41 25 74 25"/><path class="veins" d="M26 28l8-11m8 10 8-13m-20 15 10 10m9-13 9 10"/><path d="M64 22q9-9 15 1q-2 9-11 10Z" fill="#ae813f" opacity="0.32"/><path class="curl" d="M62 21Q73 10 79 23Q82 31 71 32Q77 27 62 21Z" fill="#f8d993"/><path class="shine" d="M65 20q8-5 12 2"/><path class="stem" d="M12 31Q6 29 2 34"/></svg>`,
+    `<svg viewBox="0 0 86 56"><path class="outline" d="M10 29C25 8 61 7 81 27C63 48 29 46 10 29Z" fill="var(--leaf-a)"/><path class="midrib" d="M10 29Q45 24 80 27"/><path class="veins" d="M25 27l9-10m7 9 10-12m5 12 9-8m-35 9 10 11m10-12 11 10"/><path class="shine" d="M20 24q15-12 30-10"/><path class="stem" d="M12 29Q3 26 4 17"/></svg>`,
+    `<svg viewBox="0 0 86 56"><path class="outline" d="M10 31C23 7 57 5 79 23C79 39 45 50 10 31Z" fill="var(--leaf-b)"/><path class="midrib" d="M11 31Q41 25 74 25"/><path class="veins" d="M26 28l8-11m8 10 8-13m-20 15 10 10m9-13 9 10"/><path d="M64 22q9-9 15 1q-2 9-11 10Z" fill="#ae813f" opacity="0.32"/><path class="curl" d="M62 21Q73 10 79 23Q82 31 71 32Q77 27 62 21Z" fill="#f8d993"/><path class="shine" d="M65 20q8-5 12 2"/><path class="stem" d="M12 31Q3 26 5 18"/></svg>`,
     `<svg viewBox="0 0 86 56"><path class="outline" d="M3 28C20 8 68 8 83 28C66 48 20 48 3 28Z" fill="var(--leaf-c)"/><path class="midrib" d="M4 28H82"/><path class="veins" d="M23 28l9-10m5 10 11-13m3 13 11-10M31 28l9 11m9-11 10 10"/><path class="shine" d="M17 22q13-12 32-9"/></svg>`,
-    `<svg viewBox="0 0 86 56"><path class="outline" d="M11 31C25 9 66 8 81 27C72 45 37 50 11 31Z" fill="var(--leaf-d)"/><path class="midrib" d="M12 31Q46 24 79 27"/><path class="veins" d="M31 28l8-12m9 10 10-11m-22 13 9 10m13-11 8 8"/><path d="M11 31q18 12 39 10q-16 7-33-1Z" fill="#9e673f" opacity="0.25"/><path class="curl" d="M11 31Q14 19 27 19Q18 24 28 34Q20 42 11 31Z" fill="#f3c68b"/><path class="shine" d="M15 28q0-5 6-6"/><path class="stem" d="M12 32Q9 41 3 42"/></svg>`,
+    `<svg viewBox="0 0 86 56"><path class="outline" d="M11 31C25 9 66 8 81 27C72 45 37 50 11 31Z" fill="var(--leaf-d)"/><path class="midrib" d="M12 31Q46 24 79 27"/><path class="veins" d="M31 28l8-12m9 10 10-11m-22 13 9 10m13-11 8 8"/><path d="M11 31q18 12 39 10q-16 7-33-1Z" fill="#9e673f" opacity="0.25"/><path class="curl" d="M11 31Q14 19 27 19Q18 24 28 34Q20 42 11 31Z" fill="#f3c68b"/><path class="shine" d="M15 28q0-5 6-6"/><path class="stem" d="M12 32Q3 28 4 19"/></svg>`,
     `<svg viewBox="0 0 86 56"><path class="outline" d="M4 28C22 6 64 6 82 28C64 50 22 50 4 28Z" fill="var(--leaf-e)"/><path class="midrib" d="M4 28H82"/><path class="veins" d="M23 28l9-10m5 10 11-13m3 13 11-10M31 28l9 11m9-11 10 10"/><path class="shine" d="M17 22q13-12 32-9"/></svg>`,
   ];
 
