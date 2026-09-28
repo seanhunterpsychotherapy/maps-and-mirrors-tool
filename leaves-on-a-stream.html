@@ -84,9 +84,7 @@
   .stage {
     position: relative; flex: 1; min-height: 420px;
     margin: 0; border-radius: 24px; overflow: hidden;
-    /* Brighter sky — warm midday light fading down to a luminous distance */
-    background:
-      linear-gradient(180deg, #f9edc9 0%, #dcebbf 40%, #82c4b4 100%);
+    background: #e1f2f7;
     border: 2px solid #9eb796;
     box-shadow: 0 16px 45px -30px rgba(37, 62, 48, 0.38), inset 0 0 0 1px rgba(62,88,62,0.1);
   }
@@ -103,10 +101,6 @@
     display: block;
     width: 100%;
     height: 100%;
-  }
-  .scene-light {
-    z-index: 6;
-    background: radial-gradient(ellipse at 70% 9%, rgba(255,255,255,0.22), transparent 56%);
   }
   .scene-sun {
     position: absolute; right: 18%; top: 1.5%; width: 42px; height: 42px;
@@ -429,31 +423,25 @@
     <!-- ── Layer 1: distant hills and white cloud banks ── -->
     <div class="scene-layer" style="z-index:1;" aria-hidden="true">
       <svg viewBox="0 0 1200 700" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="hillGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#c7dca2"/>
-            <stop offset="1" stop-color="#bfd298"/>
-          </linearGradient>
-          <linearGradient id="hillGrad2" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#a0c48c"/>
-            <stop offset="1" stop-color="#8bb57e"/>
-          </linearGradient>
-        </defs>
-        <!-- Far hills (hazy) — horizon raised to feel like we're sitting on the bank looking ACROSS the water -->
-        <path d="M0,52 Q150,34 280,44 T520,38 T780,46 T1020,36 T1200,44 L1200,140 L0,140 Z"
-              fill="url(#hillGrad)" opacity="0.88"/>
-        <!-- A second, slightly nearer hill ridge -->
-        <path d="M0,90 Q200,72 380,82 T720,78 T1080,84 T1200,80 L1200,150 L0,150 Z"
-              fill="url(#hillGrad2)" opacity="0.9"/>
         <!-- Rounded white clouds sit above the smooth green hills. -->
-        <g fill="#ffffff" stroke="#c6d5dc" stroke-width="2" stroke-linejoin="round" transform="translate(0 -22)">
+        <g fill="#ffffff" stroke="#c6d5dc" stroke-width="2" stroke-linejoin="round" transform="translate(0 -32)">
           <path d="M0 92V78q18-29 34-8 10-28 28-17 17-31 38-8 21-13 34 10 20-8 31 20 20-17 35 3l30 15Z"/>
           <path d="M275 92q9-26 26-19 5-30 26-25 15-31 34-8 21-14 35 14 19-6 28 18 19-9 31 18Z"/>
           <path d="M512 90q4-21 23-18 8-28 27-17 17-28 37-5 24-9 33 20 18-5 29 19Z"/>
           <path d="M933 94q6-32 29-24 7-35 29-23 17-26 35-10 26-18 42 15 23-11 39 22 22-9 32 17Z"/>
           <path d="M1098 94q9-23 28-17 4-32 28-28 19-30 46-7v55Z"/>
         </g>
-        <path d="M0 113q160-22 320-6t300-2 310 5 270-6v30H0Z" fill="#dce3c8" opacity="0.35"/>
+        <!-- Solid hill silhouettes, with clear contours rather than translucent bands. -->
+        <path d="M0 125C80 118 130 60 210 78S330 132 440 112S570 62 665 91S820 135 900 109S1070 57 1200 94V160H0Z"
+              fill="#b8cfa0" stroke="#98b781" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M0 146C95 105 160 108 245 133S385 155 480 135S620 112 720 134S880 155 970 135S1120 99 1200 126V166H0Z"
+              fill="#8fb578" stroke="#71985e" stroke-width="2" stroke-linejoin="round"/>
+        <!-- Small fir trees anchor the hills as a landscape. -->
+        <g stroke-linejoin="round" stroke-linecap="round">
+          <path d="M125 120v24m28-11v14m838-21v20m30-11v14" stroke="#806947" stroke-width="4"/>
+          <path d="M125 82l-12 22h6l-14 22h40l-14-22h6Z M153 105l-10 17h5l-10 16h30l-10-16h5Z M991 89l-13 22h6l-14 20h42l-14-20h6Z M1021 108l-10 16h5l-10 15h30l-10-15h5Z"
+                fill="#5e8c67" stroke="#4f7959" stroke-width="1.5"/>
+        </g>
       </svg>
     </div>
 
@@ -468,7 +456,7 @@
         </defs>
         <!-- Far bank: pulled higher and slimmer so the stream below it reads as the dominant band -->
         <path d="M0,140 C 120,132 240,156 380,148 C 520,140 660,162 820,154 C 950,148 1080,158 1200,150 L1200,172 L0,172 Z"
-              fill="url(#farBankGrad)"/>
+              fill="url(#farBankGrad)" stroke="#72965b" stroke-width="2"/>
         <!-- bank texture: small grass tufts -->
         <g stroke="#7d8a66" stroke-width="1.2" fill="none" opacity="0.55">
           <path d="M70 146 q-2 -8 0 -14 M76 146 q-1 -8 4 -14 M82 146 q1 -8 7 -14"/>
@@ -480,7 +468,7 @@
         </g>
         <!-- Reflection edge: thin softer band right where bank meets water -->
         <path d="M0,142 C 120,134 240,158 380,150 C 520,142 660,164 820,156 C 950,150 1080,160 1200,152"
-              stroke="#d3dcbe" stroke-width="2" fill="none" opacity="0.8"/>
+              stroke="#d9c696" stroke-width="4" fill="none"/>
       </svg>
     </div>
 
@@ -489,14 +477,10 @@
       <svg viewBox="0 0 1200 700" preserveAspectRatio="none">
         <defs>
           <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0"   stop-color="#c5e7cc"/>
+            <stop offset="0"   stop-color="#b4ded9"/>
             <stop offset="0.35" stop-color="#a2d9c8"/>
             <stop offset="0.75" stop-color="#81c9b7"/>
             <stop offset="1"   stop-color="#6ebaa8"/>
-          </linearGradient>
-          <linearGradient id="waterFade" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#f5efde" stop-opacity="0.55"/>
-            <stop offset="1" stop-color="#f5efde" stop-opacity="0"/>
           </linearGradient>
         </defs>
 
@@ -505,11 +489,6 @@
         <path d="M0,150 C 120,142 240,166 380,158 C 520,150 660,172 820,164 C 950,158 1080,168 1200,160
                  L1200,660 C 1000,668 800,650 600,658 C 400,666 200,646 0,654 Z"
               fill="url(#waterGrad)"/>
-
-        <!-- Haze along far edge -->
-        <path d="M0,150 C 120,142 240,166 380,158 C 520,150 660,172 820,164 C 950,158 1080,168 1200,160
-                 L1200,250 L0,250 Z"
-              fill="url(#waterFade)"/>
 
         <!-- Current lines — flow downstream. Distributed across the wider water band. -->
         <g class="water-anim" stroke="#f0f9dd" stroke-linecap="round" fill="none" opacity="0.85" style="filter: drop-shadow(0 1px 0 rgba(56,115,98,0.12));">
@@ -540,8 +519,6 @@
         </g>
       </svg>
     </div>
-
-    <div class="scene-layer scene-light" aria-hidden="true"></div>
 
     <!-- ── Layer 4: leaves drift here, on the water surface ── -->
     <div class="leaves" id="leaves" aria-live="polite" aria-relevant="additions"></div>
