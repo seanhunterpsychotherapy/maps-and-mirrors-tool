@@ -17,11 +17,11 @@
     --hair: #d8ded2;
     --hair-soft: #e7eade;
     --shimmer: #eef1e3;
-    --leaf-a: #8a9d72;
-    --leaf-b: #7a8e64;
-    --leaf-c: #9aae82;
-    --leaf-d: #6b7d54;
-    --leaf-e: #a4b58c;
+    --leaf-a: #c4cf77;
+    --leaf-b: #e5b971;
+    --leaf-c: #91bb88;
+    --leaf-d: #d99b6e;
+    --leaf-e: #b1cb86;
     --accent: #385d4c;
     --serif: "Cormorant Garamond", "Hoefler Text", Georgia, serif;
     --sans: "Inter Tight", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
@@ -86,7 +86,8 @@
     margin: 0; border-radius: 24px; overflow: hidden;
     /* Brighter sky — warm midday light fading down to a luminous distance */
     background:
-      linear-gradient(180deg, #f8f1d8 0%, #e5ebdb 40%, #97b0a0 100%);
+      linear-gradient(180deg, #f9edc9 0%, #dcebbf 40%, #82c4b4 100%);
+    border: 2px solid #9eb796;
     box-shadow: 0 16px 45px -30px rgba(37, 62, 48, 0.38), inset 0 0 0 1px rgba(62,88,62,0.1);
   }
 
@@ -107,6 +108,18 @@
     z-index: 6;
     background: radial-gradient(ellipse at 70% 9%, rgba(255,250,211,0.4), transparent 56%);
   }
+  .scene-sun {
+    position: absolute; right: 18%; top: 1.5%; width: 42px; height: 42px;
+    border: 2px solid #d7b970; border-radius: 50%; background: #f8dc92;
+    box-shadow: 0 0 0 7px rgba(255,238,173,0.3); pointer-events: none;
+  }
+  .cloud {
+    position: absolute; left: 15%; top: 1%; width: 110px; height: 35px;
+    opacity: 0.85; pointer-events: none;
+    animation: cloud-drift 28s ease-in-out infinite alternate;
+  }
+  .cloud.second { left: 58%; top: 3%; width: 80px; animation-delay: -14s; }
+  @keyframes cloud-drift { from { transform: translateX(-10px); } to { transform: translateX(16px); } }
 
   /* The leaves layer covers the same coordinate space, on top of the stream
      but beneath the near-bank/grass layers (so leaves can disappear behind
@@ -119,26 +132,36 @@
     overflow: hidden;
   }
 
-  /* A leaf drifts along the stream from upper-right (distance) to lower-left (past viewer).
-     Position interpolates between (--start-x, --start-y) and (--end-x, --end-y) — both in % of stage.
-     Scale grows from --start-scale (small, distant) to --end-scale (large, close). */
+  /* Translate the leaf with the current; rock its inner artwork independently.
+     Scene dimensions keep the travel distance responsive without animating layout. */
   .leaf {
     position: absolute;
     will-change: transform, opacity;
     left: var(--start-x, 70%);
     top:  var(--start-y, 38%);
-    transform: translate(-50%, -50%) scale(var(--start-scale, 0.28)) rotate(var(--rot, -8deg));
+    transform: translate3d(-50%, -50%, 0) scale(var(--start-scale, 1));
     opacity: 0;
-    animation:
-      leaf-flow var(--dur, 36s) cubic-bezier(0.45, 0.05, 0.55, 0.95) forwards,
-      leaf-bob calc(var(--dur, 36s) / 9) ease-in-out infinite alternate;
+    animation: leaf-flow var(--dur, 36s) linear forwards;
   }
+  .leaf .float { position: relative; animation: leaf-rock var(--rock-duration, 5s) ease-in-out infinite; animation-delay: var(--phase, 0s); }
+  .leaf::before, .leaf::after {
+    content: ''; position: absolute; left: 50%; top: 63%;
+    width: 135%; height: 48%; border: 1.5px solid rgba(244,255,225,0.65);
+    border-radius: 50%; pointer-events: none;
+    animation: leaf-ripple 5s ease-out infinite;
+    animation-delay: var(--phase, 0s);
+  }
+  .leaf::after { width: 155%; height: 57%; border-color: rgba(55,121,107,0.23); }
   .leaf .shape {
     position: relative;
     width: 122px; height: 80px;
-    filter: drop-shadow(0 4px 7px rgba(40, 50, 25, 0.22));
+    filter: drop-shadow(0 3px 1px rgba(44,94,75,0.2));
   }
   .leaf .shape svg { display: block; width: 100%; height: 100%; }
+  .leaf .shape svg > path:first-child { stroke: #61744b; stroke-width: 1.7; stroke-linejoin: round; }
+  .leaf .shape svg > path:nth-child(2) { stroke-width: 1.2; opacity: 0.75; }
+  .leaf .veins { fill: none; stroke: #61744b; stroke-width: 1; stroke-linecap: round; opacity: 0.5; }
+  .leaf .shine { fill: none; stroke: #fff8ce; stroke-width: 1.4; stroke-linecap: round; opacity: 0.75; }
   /* Unlabeled (ambient) leaves stay smaller — labeled leaves get the bigger size above. */
   .leaf:not(.with-label) .shape { width: 86px; height: 56px; }
   .leaf .label {
@@ -156,38 +179,47 @@
 
   @keyframes leaf-flow {
     0% {
-      left: var(--start-x); top: var(--start-y);
-      transform: translate(-50%, -50%) scale(var(--start-scale)) rotate(var(--rot));
+      transform: translate3d(-50%, -50%, 0) scale(var(--start-scale));
       opacity: 0;
-      filter: blur(0);
     }
     6%  { opacity: 1; }
-    92% { opacity: 1; filter: blur(0.3px); }
+    92% { opacity: 1; }
     100% {
-      left: var(--end-x); top: var(--end-y);
-      transform: translate(-50%, -50%) scale(var(--end-scale)) rotate(var(--rot));
-      opacity: 0.85;
-      filter: blur(0.6px);
+      transform: translate3d(calc(var(--scene-width) * var(--drift-x) - 50%), calc(var(--scene-height) * var(--drift-y) - 50%), 0) scale(var(--end-scale));
+      opacity: 0;
     }
   }
-  @keyframes leaf-bob {
-    from { margin-top: -2px; }
-    to   { margin-top: 2px; }
+  @keyframes leaf-rock {
+    0%, 100% { transform: translateY(-2px) rotate(calc(var(--rot) - 3deg)); }
+    50% { transform: translateY(2px) rotate(calc(var(--rot) + 3deg)); }
+  }
+  @keyframes leaf-ripple {
+    0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+    25% { opacity: 0.6; }
+    100% { transform: translate(-50%, -50%) scale(1.15); opacity: 0; }
+  }
+  @keyframes leaf-still {
+    0%, 100% { opacity: 0; }
+    6%, 92% { opacity: 1; }
   }
 
   /* Pause */
   .app.paused .leaf,
+  .app.paused .float,
+  .app.paused .leaf::before,
+  .app.paused .leaf::after,
+  .app.paused .cloud,
   .app.paused .water-anim,
   .app.paused .reed,
   .app.paused .prompt { animation-play-state: paused !important; }
 
   /* Subtle current shimmer — drawn as moving SVG paths inside the stream layer */
   .water-anim {
-    animation: water-shift 22s linear infinite;
+    animation: water-shift 16s ease-in-out infinite alternate;
   }
   @keyframes water-shift {
-    0%   { transform: translateX(0); }
-    100% { transform: translateX(40px); }
+    0%   { transform: translateX(-14px); }
+    100% { transform: translateX(14px); }
   }
   .reed { transform-origin: bottom center; animation: sway 7s ease-in-out infinite alternate; }
   .reed.r2 { animation-duration: 9s; animation-delay: -2s; }
@@ -303,7 +335,17 @@
   .composer :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
   @media (prefers-reduced-motion: reduce) {
-    .water-anim, .reed { animation: none !important; }
+    .water-anim, .reed, .cloud, .leaf .float,
+    .leaf::before, .leaf::after { animation: none !important; }
+    .leaf::before, .leaf::after { display: none; }
+    .leaf {
+      left: var(--rest-x, 50%);
+      animation-name: leaf-still;
+      transform: translate3d(-50%, -50%, 0) scale(var(--start-scale));
+    }
+    .prompt { animation: none !important; transform: none; opacity: 1; }
+    .prompt.out { opacity: 0; }
+    .composer { transition: none; }
   }
 
   @media (max-width: 800px) {
@@ -378,21 +420,23 @@
           </radialGradient>
         </defs>
         <ellipse cx="860" cy="56" rx="310" ry="190" fill="url(#morningLight)"/>
-        <circle cx="860" cy="42" r="26" fill="#fff9df" opacity="0.85"/>
       </svg>
     </div>
+    <div class="scene-sun" aria-hidden="true"></div>
+    <svg class="cloud" viewBox="0 0 120 40" aria-hidden="true"><path d="M12 34C-2 33 1 17 15 17c-1-17 24-20 29-7 13-10 28-4 29 9 14-6 27 1 27 10 19-4 20 7 7 7H12Z" fill="#fff9e8" stroke="#d4d9b6" stroke-width="1.5" stroke-linejoin="round"/></svg>
+    <svg class="cloud second" viewBox="0 0 120 40" aria-hidden="true"><path d="M12 34C-2 33 1 17 15 17c-1-17 24-20 29-7 13-10 28-4 29 9 14-6 27 1 27 10 19-4 20 7 7 7H12Z" fill="#fff9e8" stroke="#d4d9b6" stroke-width="1.5" stroke-linejoin="round"/></svg>
 
     <!-- ── Layer 1: distant hills / tree line ── -->
     <div class="scene-layer" style="z-index:1;" aria-hidden="true">
       <svg viewBox="0 0 1200 700" preserveAspectRatio="none">
         <defs>
           <linearGradient id="hillGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#c8d6bb"/>
-            <stop offset="1" stop-color="#b7c9ad"/>
+            <stop offset="0" stop-color="#c7dca2"/>
+            <stop offset="1" stop-color="#bfd298"/>
           </linearGradient>
           <linearGradient id="hillGrad2" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#9bb498"/>
-            <stop offset="1" stop-color="#7e9c82"/>
+            <stop offset="0" stop-color="#a0c48c"/>
+            <stop offset="1" stop-color="#8bb57e"/>
           </linearGradient>
         </defs>
         <!-- Far hills (hazy) — horizon raised to feel like we're sitting on the bank looking ACROSS the water -->
@@ -402,7 +446,7 @@
         <path d="M0,90 Q200,72 380,82 T720,78 T1080,84 T1200,80 L1200,150 L0,150 Z"
               fill="url(#hillGrad2)" opacity="0.9"/>
         <!-- Distant tree silhouettes along the ridge -->
-        <g fill="#668973" opacity="0.52">
+        <g fill="#7fae7e" stroke="#729c6f" stroke-width="2" stroke-linejoin="round">
           <path d="M0 92V78q18-29 34-8 10-28 28-17 17-31 38-8 21-13 34 10 20-8 31 20 20-17 35 3l30 15Z"/>
           <path d="M275 92q9-26 26-19 5-30 26-25 15-31 34-8 21-14 35 14 19-6 28 18 19-9 31 18Z"/>
           <path d="M512 90q4-21 23-18 8-28 27-17 17-28 37-5 24-9 33 20 18-5 29 19Z"/>
@@ -418,8 +462,8 @@
       <svg viewBox="0 0 1200 700" preserveAspectRatio="none">
         <defs>
           <linearGradient id="farBankGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#9bad88"/>
-            <stop offset="1" stop-color="#7e9876"/>
+            <stop offset="0" stop-color="#b1cc82"/>
+            <stop offset="1" stop-color="#8faf6d"/>
           </linearGradient>
         </defs>
         <!-- Far bank: pulled higher and slimmer so the stream below it reads as the dominant band -->
@@ -445,10 +489,10 @@
       <svg viewBox="0 0 1200 700" preserveAspectRatio="none">
         <defs>
           <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0"   stop-color="#d4e4cd"/>
-            <stop offset="0.35" stop-color="#accbbc"/>
-            <stop offset="0.75" stop-color="#80afa2"/>
-            <stop offset="1"   stop-color="#63958a"/>
+            <stop offset="0"   stop-color="#c5e7cc"/>
+            <stop offset="0.35" stop-color="#a2d9c8"/>
+            <stop offset="0.75" stop-color="#81c9b7"/>
+            <stop offset="1"   stop-color="#6ebaa8"/>
           </linearGradient>
           <linearGradient id="waterFade" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0" stop-color="#f5efde" stop-opacity="0.55"/>
@@ -468,7 +512,7 @@
               fill="url(#waterFade)"/>
 
         <!-- Current lines — flow downstream. Distributed across the wider water band. -->
-        <g class="water-anim" stroke="#eaf3df" stroke-linecap="round" fill="none" opacity="0.72">
+        <g class="water-anim" stroke="#f0f9dd" stroke-linecap="round" fill="none" opacity="0.85" style="filter: drop-shadow(0 1px 0 rgba(56,115,98,0.12));">
           <path d="M120 188 q40 -2 80 0"  stroke-width="1"  opacity="0.55"/>
           <path d="M340 200 q50 -2 100 0" stroke-width="1"  opacity="0.5"/>
           <path d="M620 210 q60 -2 120 0" stroke-width="1"  opacity="0.55"/>
@@ -507,9 +551,9 @@
       <svg viewBox="0 0 1200 700" preserveAspectRatio="none">
         <defs>
           <linearGradient id="nearBankGrad" x1="0" y1="0" x2="0.4" y2="1">
-            <stop offset="0"   stop-color="#9ba87b"/>
-            <stop offset="0.5" stop-color="#7c8e64"/>
-            <stop offset="1"   stop-color="#536c50"/>
+            <stop offset="0"   stop-color="#b7c77e"/>
+            <stop offset="0.5" stop-color="#9bb169"/>
+            <stop offset="1"   stop-color="#77975e"/>
           </linearGradient>
           <linearGradient id="grassGrad" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0" stop-color="#8e9b6e"/>
@@ -642,6 +686,13 @@
 
   const app = document.getElementById('app');
   const leavesEl = document.getElementById('leaves');
+  function updateSceneSize() {
+    leavesEl.style.setProperty('--scene-width', leavesEl.clientWidth + 'px');
+    leavesEl.style.setProperty('--scene-height', leavesEl.clientHeight + 'px');
+  }
+  updateSceneSize();
+  if ('ResizeObserver' in window) new ResizeObserver(updateSceneSize).observe(leavesEl);
+  else window.addEventListener('resize', updateSceneSize);
   const promptEl = document.getElementById('prompt');
   const composer = document.getElementById('composer');
   const composerWrap = composer.parentElement;
@@ -679,10 +730,7 @@
   let promptTimer = null;
   let ambientTimer = null;
 
-    // The water surface runs diagonally now:
-    //   far edge:  top of stream band (y ≈ 50% of stage)
-    //   near edge: a diagonal from upper-left (y ≈ 60%) down to mid-right (y ≈ 90%)
-    // Current flows from upper-RIGHT (distant on the water) toward lower-LEFT (past viewer).
+    // Leaves follow the current from left to right, below the guidance.
     function makeLeaf(label, options = {}) {
       const leaf = document.createElement('div');
       leaf.className = 'leaf' + (label ? ' with-label' : '');
@@ -711,21 +759,33 @@
     leaf.style.setProperty('--end-scale',   endScale);
     leaf.style.setProperty('--dur', dur + 's');
     leaf.style.setProperty('--rot', rot + 'deg');
+    leaf.style.setProperty('--drift-x', (endX - startX) / 100);
+    leaf.style.setProperty('--drift-y', (endY - startY) / 100);
+    leaf.style.setProperty('--rest-x', rand(18, 82) + '%');
+    leaf.style.setProperty('--rock-duration', rand(4.5, 6.5) + 's');
+    leaf.style.setProperty('--phase', rand(-6, 0) + 's');
 
+    const float = document.createElement('div');
+    float.className = 'float';
     const shape = document.createElement('div');
     shape.className = 'shape';
-    shape.innerHTML = svg;
-    leaf.appendChild(shape);
+    shape.setAttribute('aria-hidden', 'true');
+    shape.innerHTML = svg.replace('</svg>', '<path class="veins" d="M23 28l9-10m5 10 11-13m3 13 11-10M31 28l9 11m9-11 10 10"/><path class="shine" d="M17 22q13-12 32-9"/></svg>');
+    float.appendChild(shape);
+    leaf.appendChild(float);
 
     if (label) {
       const lbl = document.createElement('div');
       lbl.className = 'label';
       lbl.textContent = label;
-      leaf.appendChild(lbl);
+      float.appendChild(lbl);
     }
 
     leavesEl.appendChild(leaf);
-    setTimeout(() => leaf.remove(), dur * 1000 + 1000);
+    // A paused leaf must not expire on a wall-clock timer.
+    leaf.addEventListener('animationend', (event) => {
+      if (event.target === leaf && ['leaf-flow', 'leaf-still'].includes(event.animationName)) leaf.remove();
+    });
     return leaf;
   }
 
