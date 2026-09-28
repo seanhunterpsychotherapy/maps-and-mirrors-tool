@@ -707,6 +707,9 @@
     `<svg viewBox="0 0 86 56"><path class="outline" d="M4 28C22 6 64 6 82 28C64 50 22 50 4 28Z" fill="var(--leaf-e)"/><path class="midrib" d="M4 28H82"/><path class="veins" d="M23 28l9-10m5 10 11-13m3 13 11-10M31 28l9 11m9-11 10 10"/><path class="shine" d="M17 22q13-12 32-9"/></svg>`,
   ];
 
+  // A maple appears occasionally among the softer oval leaves.
+  const MAPLE_SVG = `<svg viewBox="0 0 86 56"><path class="outline" d="M16 29L10 18L22 20L19 8L32 14L37 5L44 18L53 9L54 19L70 14L65 23L81 28L65 33L70 42L54 38L53 48L44 39L37 51L32 42L19 48L22 36L10 38Z" fill="var(--leaf-d)"/><path d="M16 29L43 30L65 33L70 42L54 38L53 48L44 39L37 51L32 42L19 48L22 36L10 38Z" fill="#bd845a" opacity="0.22"/><path class="midrib" d="M16 29Q45 27 79 28"/><path class="veins" d="M25 29L23 16M35 28L37 10M45 28L64 18M25 29L23 41M35 29L37 46M45 29L64 39"/><path class="shine" d="M25 15l7 4 5-8"/><path class="stem" d="M17 29Q5 28 6 16"/></svg>`;
+
   const rand = (a, b) => Math.random() * (b - a) + a;
   const pick = (a) => a[Math.floor(Math.random() * a.length)];
 
@@ -733,7 +736,7 @@
       const endScale   = baseScale * sMul;
       const dur = (options.dur != null ? options.dur : (label ? rand(34, 42) : rand(38, 52))) * dMul;
       const rot = options.rot != null ? options.rot : rand(-18, 18);
-      const svg = options.svg || pick(LEAF_SVGS);
+      const svg = options.svg || (Math.random() < 0.12 ? MAPLE_SVG : pick(LEAF_SVGS));
 
     leaf.style.setProperty('--start-x', startX + '%');
     leaf.style.setProperty('--start-y', startY + '%');
