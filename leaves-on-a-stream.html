@@ -106,7 +106,7 @@
   }
   .scene-light {
     z-index: 6;
-    background: radial-gradient(ellipse at 70% 9%, rgba(255,250,211,0.4), transparent 56%);
+    background: radial-gradient(ellipse at 70% 9%, rgba(255,255,255,0.22), transparent 56%);
   }
   .scene-sun {
     position: absolute; right: 18%; top: 1.5%; width: 42px; height: 42px;
@@ -115,7 +115,7 @@
   }
   .cloud {
     position: absolute; left: 15%; top: 1%; width: 110px; height: 35px;
-    opacity: 0.85; pointer-events: none;
+    opacity: 1; pointer-events: none;
     animation: cloud-drift 28s ease-in-out infinite alternate;
   }
   .cloud.second { left: 58%; top: 3%; width: 80px; animation-delay: -14s; }
@@ -423,10 +423,10 @@
       </svg>
     </div>
     <div class="scene-sun" aria-hidden="true"></div>
-    <svg class="cloud" viewBox="0 0 120 40" aria-hidden="true"><path d="M12 34C-2 33 1 17 15 17c-1-17 24-20 29-7 13-10 28-4 29 9 14-6 27 1 27 10 19-4 20 7 7 7H12Z" fill="#fff9e8" stroke="#d4d9b6" stroke-width="1.5" stroke-linejoin="round"/></svg>
-    <svg class="cloud second" viewBox="0 0 120 40" aria-hidden="true"><path d="M12 34C-2 33 1 17 15 17c-1-17 24-20 29-7 13-10 28-4 29 9 14-6 27 1 27 10 19-4 20 7 7 7H12Z" fill="#fff9e8" stroke="#d4d9b6" stroke-width="1.5" stroke-linejoin="round"/></svg>
+    <svg class="cloud" viewBox="0 0 120 40" aria-hidden="true"><path d="M12 34C-2 33 1 17 15 17c-1-17 24-20 29-7 13-10 28-4 29 9 14-6 27 1 27 10 19-4 20 7 7 7H12Z" fill="#ffffff" stroke="#c6d5dc" stroke-width="1.5" stroke-linejoin="round"/></svg>
+    <svg class="cloud second" viewBox="0 0 120 40" aria-hidden="true"><path d="M12 34C-2 33 1 17 15 17c-1-17 24-20 29-7 13-10 28-4 29 9 14-6 27 1 27 10 19-4 20 7 7 7H12Z" fill="#ffffff" stroke="#c6d5dc" stroke-width="1.5" stroke-linejoin="round"/></svg>
 
-    <!-- ── Layer 1: distant hills / tree line ── -->
+    <!-- ── Layer 1: distant hills and white cloud banks ── -->
     <div class="scene-layer" style="z-index:1;" aria-hidden="true">
       <svg viewBox="0 0 1200 700" preserveAspectRatio="none">
         <defs>
@@ -445,8 +445,8 @@
         <!-- A second, slightly nearer hill ridge -->
         <path d="M0,90 Q200,72 380,82 T720,78 T1080,84 T1200,80 L1200,150 L0,150 Z"
               fill="url(#hillGrad2)" opacity="0.9"/>
-        <!-- Distant tree silhouettes along the ridge -->
-        <g fill="#7fae7e" stroke="#729c6f" stroke-width="2" stroke-linejoin="round">
+        <!-- Rounded white clouds sit above the smooth green hills. -->
+        <g fill="#ffffff" stroke="#c6d5dc" stroke-width="2" stroke-linejoin="round" transform="translate(0 -22)">
           <path d="M0 92V78q18-29 34-8 10-28 28-17 17-31 38-8 21-13 34 10 20-8 31 20 20-17 35 3l30 15Z"/>
           <path d="M275 92q9-26 26-19 5-30 26-25 15-31 34-8 21-14 35 14 19-6 28 18 19-9 31 18Z"/>
           <path d="M512 90q4-21 23-18 8-28 27-17 17-28 37-5 24-9 33 20 18-5 29 19Z"/>
