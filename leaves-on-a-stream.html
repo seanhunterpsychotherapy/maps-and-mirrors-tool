@@ -114,6 +114,12 @@
   }
   .cloud.second { left: 58%; top: 3%; width: 80px; animation-delay: -14s; }
   @keyframes cloud-drift { from { transform: translateX(-10px); } to { transform: translateX(16px); } }
+  .bank-trees {
+    position: absolute; top: 21.5%; left: 4%; z-index: 2;
+    width: clamp(76px, 11vw, 128px); height: clamp(58px, 7.5vw, 88px);
+    transform: translateY(-100%); pointer-events: none;
+  }
+  .bank-trees.right { left: auto; right: 5%; }
 
   /* The leaves layer covers the same coordinate space, on top of the stream
      but beneath the near-bank/grass layers (so leaves can disappear behind
@@ -152,8 +158,10 @@
     filter: drop-shadow(0 3px 1px rgba(44,94,75,0.2));
   }
   .leaf .shape svg { display: block; width: 100%; height: 100%; }
-  .leaf .shape svg > path:first-child { stroke: #61744b; stroke-width: 1.7; stroke-linejoin: round; }
-  .leaf .shape svg > path:nth-child(2) { stroke-width: 1.2; opacity: 0.75; }
+  .leaf .outline { stroke: #61744b; stroke-width: 1.7; stroke-linejoin: round; }
+  .leaf .midrib { fill: none; stroke: #61744b; stroke-width: 1.2; stroke-linecap: round; opacity: 0.75; }
+  .leaf .stem { fill: none; stroke: #886945; stroke-width: 2; stroke-linecap: round; }
+  .leaf .curl { stroke: #8d8054; stroke-width: 1.2; stroke-linejoin: round; }
   .leaf .veins { fill: none; stroke: #61744b; stroke-width: 1; stroke-linecap: round; opacity: 0.5; }
   .leaf .shine { fill: none; stroke: #fff8ce; stroke-width: 1.4; stroke-linecap: round; opacity: 0.75; }
   /* Unlabeled (ambient) leaves stay smaller — labeled leaves get the bigger size above. */
@@ -436,14 +444,37 @@
               fill="#b8cfa0" stroke="#98b781" stroke-width="2" stroke-linejoin="round"/>
         <path d="M0 146C95 105 160 108 245 133S385 155 480 135S620 112 720 134S880 155 970 135S1120 99 1200 126V166H0Z"
               fill="#8fb578" stroke="#71985e" stroke-width="2" stroke-linejoin="round"/>
-        <!-- Small fir trees anchor the hills as a landscape. -->
-        <g stroke-linejoin="round" stroke-linecap="round">
-          <path d="M125 120v24m28-11v14m838-21v20m30-11v14" stroke="#806947" stroke-width="4"/>
-          <path d="M125 82l-12 22h6l-14 22h40l-14-22h6Z M153 105l-10 17h5l-10 16h30l-10-16h5Z M991 89l-13 22h6l-14 20h42l-14-20h6Z M1021 108l-10 16h5l-10 15h30l-10-15h5Z"
-                fill="#5e8c67" stroke="#4f7959" stroke-width="1.5"/>
-        </g>
       </svg>
     </div>
+
+    <!-- Separate view boxes keep the trees in proportion on narrow screens. -->
+    <svg class="bank-trees" viewBox="0 0 128 88" aria-hidden="true">
+      <g stroke-linejoin="round" stroke-linecap="round">
+        <ellipse cx="44" cy="84" rx="30" ry="3" fill="#617b4f" opacity="0.15"/>
+        <path d="M39 83l2-44h6l4 44" fill="#9a7951" stroke="#705c42" stroke-width="1.5"/>
+        <path d="M17 42C5 29 15 12 28 15C34 0 55 0 61 16C78 14 86 35 74 44C77 61 61 69 49 62C37 72 18 62 17 42Z" fill="#80a76a" stroke="#537e54" stroke-width="1.7"/>
+        <path d="M70 23C75 35 70 48 58 50C46 62 30 59 19 50C23 65 39 69 49 62C61 69 77 61 74 44C81 38 80 29 70 23Z" fill="#638e59"/>
+        <path d="M25 25q7-10 16-8m7-5q9 0 12 9" fill="none" stroke="#b1c78d" stroke-width="3"/>
+        <path d="M44 66V39m0 14-11-9m11 0 12-10" fill="none" stroke="#607849" stroke-width="2"/>
+        <path d="M99 84V54" stroke="#806442" stroke-width="4"/>
+        <path d="M99 29l-13 22h7L79 69q20 9 40 0l-14-18h7Z" fill="#56856b" stroke="#426c55" stroke-width="1.5"/>
+        <path d="M99 32v38q10 4 20-1l-14-18h7Z" fill="#426f5a"/>
+        <path d="M87 60l9 2m-4-15 6 1" stroke="#91b38b" stroke-width="2"/>
+      </g>
+    </svg>
+    <svg class="bank-trees right" viewBox="0 0 128 88" aria-hidden="true">
+      <g stroke-linejoin="round" stroke-linecap="round">
+        <path d="M33 84V44" stroke="#806442" stroke-width="5"/>
+        <path d="M33 8L18 34h7L9 54h9L3 74q30 10 60 0L48 54h9L41 34h7Z" fill="#5f9274" stroke="#426d56" stroke-width="1.7"/>
+        <path d="M33 11v69q15 0 30-6L48 54h9L41 34h7Z" fill="#4d7b62"/>
+        <path d="M17 62l11 3m-7-20 9 3m-5-17 6 2" fill="none" stroke="#9aba8e" stroke-width="2"/>
+        <path d="M96 84l-2-39" stroke="#947651" stroke-width="5"/>
+        <path d="M75 51C66 40 73 26 83 26C87 13 105 15 110 29C124 29 128 45 118 53C119 66 103 74 94 66C83 72 72 64 75 51Z" fill="#99b778" stroke="#64875a" stroke-width="1.6"/>
+        <path d="M115 34q10 22-14 25q-16 5-26-8c-3 13 8 21 19 15c9 8 25 0 24-13q10-9-3-19Z" fill="#7c9f66"/>
+        <path d="M81 36q2-9 10-9" fill="none" stroke="#c5d598" stroke-width="3"/>
+        <path d="M95 67V45m0 11 10-9" fill="none" stroke="#698251" stroke-width="1.8"/>
+      </g>
+    </svg>
 
     <!-- ── Layer 2: far bank (across the stream) ── -->
     <div class="scene-layer" style="z-index:2;" aria-hidden="true">
@@ -693,11 +724,11 @@
   ];
 
   const LEAF_SVGS = [
-    `<svg viewBox="0 0 86 56"><path d="M4 28 C 22 6, 64 6, 82 28 C 64 50, 22 50, 4 28 Z" fill="var(--leaf-a)"/><path d="M4 28 L 82 28" stroke="#5a6c47" stroke-width="0.8" opacity="0.55"/></svg>`,
-    `<svg viewBox="0 0 86 56"><path d="M6 30 C 12 8, 70 6, 80 26 C 78 50, 18 52, 6 30 Z" fill="var(--leaf-b)"/><path d="M8 30 L 78 26" stroke="#4f5f3e" stroke-width="0.8" opacity="0.5"/></svg>`,
-    `<svg viewBox="0 0 86 56"><path d="M3 28 C 20 8, 68 8, 83 28 C 66 48, 20 48, 3 28 Z" fill="var(--leaf-c)"/><path d="M3 28 L 83 28" stroke="#5a6c47" stroke-width="0.7" opacity="0.5"/></svg>`,
-    `<svg viewBox="0 0 86 56"><path d="M5 28 C 22 4, 64 4, 81 28 C 64 52, 22 52, 5 28 Z" fill="var(--leaf-d)"/><path d="M5 28 L 81 28" stroke="#3d4a32" stroke-width="0.8" opacity="0.55"/></svg>`,
-    `<svg viewBox="0 0 86 56"><path d="M4 28 C 22 6, 64 6, 82 28 C 64 50, 22 50, 4 28 Z" fill="var(--leaf-e)"/><path d="M4 28 L 82 28" stroke="#5a6c47" stroke-width="0.7" opacity="0.45"/></svg>`,
+    `<svg viewBox="0 0 86 56"><path class="outline" d="M10 29C25 8 61 7 81 27C63 48 29 46 10 29Z" fill="var(--leaf-a)"/><path class="midrib" d="M10 29Q45 24 80 27"/><path class="veins" d="M25 27l9-10m7 9 10-12m5 12 9-8m-35 9 10 11m10-12 11 10"/><path class="shine" d="M20 24q15-12 30-10"/><path class="stem" d="M12 29Q5 31 2 38"/></svg>`,
+    `<svg viewBox="0 0 86 56"><path class="outline" d="M10 31C23 7 57 5 79 23C79 39 45 50 10 31Z" fill="var(--leaf-b)"/><path class="midrib" d="M11 31Q41 25 74 25"/><path class="veins" d="M26 28l8-11m8 10 8-13m-20 15 10 10m9-13 9 10"/><path d="M64 22q9-9 15 1q-2 9-11 10Z" fill="#ae813f" opacity="0.32"/><path class="curl" d="M62 21Q73 10 79 23Q82 31 71 32Q77 27 62 21Z" fill="#f8d993"/><path class="shine" d="M65 20q8-5 12 2"/><path class="stem" d="M12 31Q6 29 2 34"/></svg>`,
+    `<svg viewBox="0 0 86 56"><path class="outline" d="M3 28C20 8 68 8 83 28C66 48 20 48 3 28Z" fill="var(--leaf-c)"/><path class="midrib" d="M4 28H82"/><path class="veins" d="M23 28l9-10m5 10 11-13m3 13 11-10M31 28l9 11m9-11 10 10"/><path class="shine" d="M17 22q13-12 32-9"/></svg>`,
+    `<svg viewBox="0 0 86 56"><path class="outline" d="M11 31C25 9 66 8 81 27C72 45 37 50 11 31Z" fill="var(--leaf-d)"/><path class="midrib" d="M12 31Q46 24 79 27"/><path class="veins" d="M31 28l8-12m9 10 10-11m-22 13 9 10m13-11 8 8"/><path d="M11 31q18 12 39 10q-16 7-33-1Z" fill="#9e673f" opacity="0.25"/><path class="curl" d="M11 31Q14 19 27 19Q18 24 28 34Q20 42 11 31Z" fill="#f3c68b"/><path class="shine" d="M15 28q0-5 6-6"/><path class="stem" d="M12 32Q9 41 3 42"/></svg>`,
+    `<svg viewBox="0 0 86 56"><path class="outline" d="M4 28C22 6 64 6 82 28C64 50 22 50 4 28Z" fill="var(--leaf-e)"/><path class="midrib" d="M4 28H82"/><path class="veins" d="M23 28l9-10m5 10 11-13m3 13 11-10M31 28l9 11m9-11 10 10"/><path class="shine" d="M17 22q13-12 32-9"/></svg>`,
   ];
 
   const rand = (a, b) => Math.random() * (b - a) + a;
@@ -747,7 +778,7 @@
     const shape = document.createElement('div');
     shape.className = 'shape';
     shape.setAttribute('aria-hidden', 'true');
-    shape.innerHTML = svg.replace('</svg>', '<path class="veins" d="M23 28l9-10m5 10 11-13m3 13 11-10M31 28l9 11m9-11 10 10"/><path class="shine" d="M17 22q13-12 32-9"/></svg>');
+    shape.innerHTML = svg;
     float.appendChild(shape);
     leaf.appendChild(float);
 
