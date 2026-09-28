@@ -370,7 +370,7 @@
   <main class="stage" id="stage" aria-label="A quiet stream with leaves drifting past">
 
     <div class="scene-layer" aria-hidden="true">
-      <svg viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice">
+      <svg viewBox="0 0 1200 700" preserveAspectRatio="none">
         <defs>
           <radialGradient id="morningLight">
             <stop offset="0" stop-color="#fffbe2" stop-opacity="0.95"/>
@@ -384,7 +384,7 @@
 
     <!-- ── Layer 1: distant hills / tree line ── -->
     <div class="scene-layer" style="z-index:1;" aria-hidden="true">
-      <svg viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice">
+      <svg viewBox="0 0 1200 700" preserveAspectRatio="none">
         <defs>
           <linearGradient id="hillGrad" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0" stop-color="#c8d6bb"/>
@@ -415,7 +415,7 @@
 
     <!-- ── Layer 2: far bank (across the stream) ── -->
     <div class="scene-layer" style="z-index:2;" aria-hidden="true">
-      <svg viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice">
+      <svg viewBox="0 0 1200 700" preserveAspectRatio="none">
         <defs>
           <linearGradient id="farBankGrad" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0" stop-color="#9bad88"/>
@@ -442,7 +442,7 @@
 
     <!-- ── Layer 3: the stream (water surface) ── -->
     <div class="scene-layer" style="z-index:3;" aria-hidden="true">
-      <svg viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice">
+      <svg viewBox="0 0 1200 700" preserveAspectRatio="none">
         <defs>
           <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0"   stop-color="#d4e4cd"/>
@@ -504,7 +504,7 @@
 
     <!-- ── Layer 5: near (foreground) bank — the viewer's vantage ── -->
     <div class="scene-layer" style="z-index:10;" aria-hidden="true">
-      <svg viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice">
+      <svg viewBox="0 0 1200 700" preserveAspectRatio="none">
         <defs>
           <linearGradient id="nearBankGrad" x1="0" y1="0" x2="0.4" y2="1">
             <stop offset="0"   stop-color="#9ba87b"/>
@@ -619,7 +619,7 @@
       </button>
     </div>
 
-    <button class="place" id="placeBtn" aria-haspopup="dialog" aria-expanded="false">
+    <button class="place" id="placeBtn" aria-controls="composer" aria-expanded="false">
       <svg class="leaf-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3 C15 6 15 14 10 17 C5 14 5 6 10 3 Z" fill="#a4b58c"/><path d="M10 3 L10 17" stroke="#5e7349" stroke-width="0.8"/></svg>
       Place a thought
     </button>
@@ -789,6 +789,7 @@
     composerWrap.setAttribute('aria-hidden', 'true');
     placeBtn.setAttribute('aria-expanded', 'false');
     thoughtInput.value = '';
+    placeBtn.focus();
   }
   placeBtn.addEventListener('click', () => {
     composer.classList.contains('open') ? closeComposer() : openComposer();
@@ -876,7 +877,8 @@
   startAmbientLeaves();
 
   document.addEventListener('keydown', (e) => {
-    if (e.target && e.target.tagName === 'INPUT') return;
+    // Let focused controls keep their native keyboard actions.
+    if (e.target instanceof Element && e.target.closest('input, textarea, button, a, select, [contenteditable]')) return;
     if (e.code === 'Space') { e.preventDefault(); setPaused(!app.classList.contains('paused')); }
   });
 })();
